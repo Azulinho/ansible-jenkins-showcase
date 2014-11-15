@@ -1,0 +1,54 @@
+jenkins_version: 1.554-1.1
+
+jenkins_dest: /opt/jenkins
+jenkins_lib: /var/lib/jenkins
+jenkins_port: 8080
+jenkins_prefix: /jenkins
+
+jenkins_cli_dest: '{{ jenkins_dest }}/jenkins-cli.jar' # Jenkins CLI destination
+jenkins_updates_dest: '{{ jenkins_dest }}/updates_jenkins.json' # Jenkins updates file
+
+jenkins_plugins:
+  - build-pipeline-plugin
+  - job-dsl
+  - git
+  - parameterized-trigger
+  - ansicolor
+  - build-flow-plugin
+  - build-timeout
+  - build-with-parameters
+  - buildgraph-view
+  - config-autorefresh-plugin
+  - configurationslicing
+  - copyartifact
+  - credentials
+  - delivery-pipeline-plugin
+  - envinject
+  - external-monitor-job
+  - flexible-publish
+  - git-client
+  - github-api
+  - github-oauth
+  - github
+  - gitlab-hook
+  - greenballs
+  - job-log-logger-plugin
+  - jobConfigHistory
+  - log-parser
+  - mailer
+  - mask-passwords
+  - multiple-scms
+  - naginator
+  - parameterized-trigger
+  - publish-over-ssh
+  - rebuild
+  - show-build-parameters
+  - ssh-agent
+  - ssh-credentials
+  - ci-game
+  - throttle-concurrents
+  - timestamper
+
+
+
+

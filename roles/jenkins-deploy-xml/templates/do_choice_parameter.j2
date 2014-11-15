@@ -1,0 +1,17 @@
+{% macro do_choice_parameter(values) %}
+          <hudson.model.ChoiceParameterDefinition>
+            <name>{{ values.name }}</name>
+            <description>{{ values.description }}</description>
+{%      if values.choices is defined %}
+{%          if values.choices.type_string is defined %}
+          <choices class="java.util.Arrays$ArrayList">
+              <a class="string-array">
+{%             for string_parameter in values.choices.type_string %}
+                <string>{{ string_parameter }}</string>
+{%             endfor %}
+              </a>
+{%          endif %}
+          </choices>
+{%      endif %}
+        </hudson.model.ChoiceParameterDefinition>
+{% endmacro %}

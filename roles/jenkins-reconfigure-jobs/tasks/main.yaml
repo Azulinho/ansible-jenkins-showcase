@@ -1,0 +1,33 @@
+---
+
+- name: create /etc/jenkins_jobs
+  file: path={{ item }} state=directory
+  with_items:
+    - /etc/jenkins_jobs
+    - /etc/jenkins_jobs/definitions
+
+- name: deploy jenkins_jobs.ini
+  template: dest=/etc/jenkins_jobs/jenkins_jobs.ini
+    src=jenkins_jobs.ini
+
+- name: upload jenkins jobs definitions
+  copy: dest="/etc/jenkins_jobs/definitions/{{ ''.join(item.split('/')[-1:]) }}"
+    src={{ item }}
+  with_fileglob:
+    - jobs_definitions/*
+  register: upload
+
+- name: gather list of jobs
+  command: ls /etc/jenkins_jobs/definitions/
+  register: jobs
+
+- name: test job definitions before updating
+  command: jenkins-jobs test /etc/jenkins_jobs/definitions/{{ item }}
+  with_items:
+    - "{{ jobs.stdout }}"
+  when: upload.changed
+
+- name: upload job definitions
+  command: jenkins-jobs update /etc/jenkins_jobs/definitions/
+  #when: upload.changed
+

@@ -1,0 +1,7 @@
+---
+- name: install openjdk JDK
+  yum: name=java-1.7.0-openjdk-devel
+    state=present
+  tags:
+    - jdk
+    - openjdk

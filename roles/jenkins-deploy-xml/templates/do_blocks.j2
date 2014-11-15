@@ -1,0 +1,12 @@
+{% macro do_blocks(blocks) %}
+{%        if 'downstream' in blocks  %}
+  <blockBuildWhenDownstreamBuilding>true</blockBuildWhenDownstreamBuilding>
+{%        else %}
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+{%        endif %}
+{%        if 'upstream' in blocks  %}
+  <blockBuildWhenUpstreamBuilding>true</blockBuildWhenUpstreamBuilding>
+{%        else %}
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+{%        endif %}
+{% endmacro %}

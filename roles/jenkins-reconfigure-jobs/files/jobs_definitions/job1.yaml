@@ -1,0 +1,11 @@
+- job:
+    name: job1
+    project-type: freestyle
+    defaults: global
+    disabled: false
+    display-name: 'job1'
+    concurrent: true
+    quiet-period: 5
+    block-downstream: false
+    block-upstream: false
+    retry-count: 3

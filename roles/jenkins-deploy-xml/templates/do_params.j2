@@ -1,0 +1,26 @@
+{% from 'do_choice_parameter.j2' import do_choice_parameter with context %}
+{% from 'do_string_parameter.j2' import do_string_parameter with context %}
+{% from 'do_password_parameter.j2' import do_password_parameter with context %}
+{% macro do_params(parameters) %}
+    <hudson.model.ParametersDefinitionProperty>
+        <parameterDefinitions>
+{%  for parameter_values in parameters %}
+{%    if 'choice' in parameter_values.type %}
+{{      do_choice_parameter(parameter_values) }}
+{%    endif %}
+{%  endfor %}
+
+{%  if 'type_string' in parameters %}
+{%     for string_parameter in values %}
+{{        do_string_parameter(string_parameter) }}
+{%     endfor %}
+{%  endif %}
+
+{%  if 'type_password' in parameters %}
+{%     for password_parameter in values %}
+{{        do_password_parameter(password_parameter) }}
+{%     endfor %}
+{%  endif %}
+        </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+{% endmacro %}

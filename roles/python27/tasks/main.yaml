@@ -1,0 +1,11 @@
+---
+
+- name: install python27 from centos SCL repository
+  yum: name={{ item }} state=present
+  with_items:
+    - python27
+
+- name: install pip27
+  easy_install: name=pip
+    executable=/opt/rh/python27/root/usr/bin/python2.7
+

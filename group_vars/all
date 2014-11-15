@@ -1,0 +1,32 @@
+# vim: set ft=yaml:
+env:
+  default: &env_defaults
+    jenkins:
+      jobs:
+        run_ansible:
+          description: "Executes Ansible"
+          options: { disabled: false, blocks: [ 'downstream', 'upstream' ], concurrentbuild: true }
+          parameters:
+            - { name: 'INVENTORY_FILE', type: 'choice', description: 'Which Inventory File to use', choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
+            - { name: 'PLAYBOOK', type: 'choice', description: 'Which playbook to execute', choices: { type_string: ['jenkins.yml', 'site.yml']}}
+            - { name: "LIMIT", type: 'string', description: "Ansible --limit", default: "all" }
+            - { name: "TAGS", type: 'string', description: "Ansible --tags", default: "" }
+            - { name: "START_AT_TASK", type: 'string', description: "Ansible --start-at-task", default: "" }
+            - { name: "RELEASE", type: 'string', description: "RELEASE number to use", default: "latest" }
+            - { name: "VAULT", type: 'password', description: "Ansible Vault Password", default: "" }
+          builders:
+            - { type: 'shell',
+                command_lines: [
+                  "#!/bin/bash",
+                  "echo $VAULT &gt; .vault",
+                  "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+          buildWrappers:
+            - { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
+            - { type: 'Timestamper', options: none }
+            - { type: 'AnsiColor', colorMapName: xterm }
+  vagrant: *env_defaults
+  dev: *env_defaults
+  qa: *env_defaults
+  prd: *env_defaults
+
+

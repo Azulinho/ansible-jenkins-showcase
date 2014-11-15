@@ -1,0 +1,8 @@
+---
+
+dependencies:
+  - { role: yum-repo-epel }
+  - { role: java-openjdk-jdk }
+  - { role: yum-repo-jenkins }
+  - { role: yum-tools }
+  - { role: jenkins-job-builder }

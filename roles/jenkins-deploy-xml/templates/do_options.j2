@@ -1,0 +1,14 @@
+{% from 'do_blocks.j2' import do_blocks with context %}
+{% macro do_options(options) %}
+{%    if options.disabled is defined %}
+  <disabled>{{ options.disabled }}</disabled>
+{%    endif %}
+{%    if options.blocks is defined %}
+{{      do_blocks(options.blocks) }}
+{%    endif %}
+{%    if options.concurrentbuild is defined  %}
+  <triggers/>
+  <concurrentBuild>{{ options.concurrentbuild }}</concurrentBuild>
+{%    endif %}
+
+{% endmacro %}

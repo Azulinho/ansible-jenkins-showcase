@@ -1,0 +1,59 @@
+{% from 'do_params.j2' import do_params with context %}
+{% from 'do_builders.j2' import do_builders with context %}
+{% from 'do_options.j2' import do_options with context %}
+{% from 'do_buildWrapper.j2' import do_buildWrapper with context %}
+{%- set job = env[inventory_file]['jenkins']['jobs'][item.key] -%}
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description> {{job.description}}</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+
+
+{%  if job.parameters is defined %}
+{{      do_params(job.parameters)  }}
+{%  endif %}
+
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.21">
+      <autoRebuild>false</autoRebuild>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@1.8.2">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+
+{% if job.options is defined %}
+{{ do_options(job.options) }}
+{% endif %}
+
+{% if job.builders is defined %}
+  <builders>
+  {% for builder in job.builders %}
+{{ do_builders(builder) }}
+  {% endfor %}
+  </builders>
+{% endif %}
+
+
+
+{% if 'publishers' in job %}
+  <publishers>
+  <publishers/>
+{% endif %}
+
+{% if job.buildWrappers is defined %}
+  <buildWrappers>
+{%  for wrapper in job.buildWrappers %}
+{{    do_buildWrapper(wrapper) }}
+{%  endfor %}
+  </buildWrappers>
+{% endif %}
+
+</project>

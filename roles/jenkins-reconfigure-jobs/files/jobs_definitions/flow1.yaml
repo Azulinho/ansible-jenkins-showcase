@@ -1,0 +1,12 @@
+- job:
+    name: flow1
+    project_type: flow
+    dsl: |
+      build("job1")
+      parallel (
+        { build("job2a") },
+        { build("job2b") },
+      )
+      build("job3")
+
+

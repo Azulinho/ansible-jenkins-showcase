@@ -1,0 +1,6 @@
+---
+
+-  name: install yum version lock
+   yum: name=yum-plugin-versionlock
+    state=present
+

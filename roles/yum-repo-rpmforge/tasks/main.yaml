@@ -1,0 +1,16 @@
+---
+
+- name: Check for rpmforge GPG in rpmdb
+  command: rpm -q {{ rpmforge_key }}
+  register: keycheck
+  ignore_errors: true
+
+- name: Ensure RPMforge GPG key installed
+  command: rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+  when: keycheck|failed
+
+- name: install yum rpmforge repo
+  yum: name=http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.i686.rpm
+    state=present
+  tags:
+    - rpmforge_repo

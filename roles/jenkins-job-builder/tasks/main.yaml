@@ -1,0 +1,4 @@
+
+- name: install python jenkins-job-builder
+  pip: name=jenkins-job-builder
+    state=present

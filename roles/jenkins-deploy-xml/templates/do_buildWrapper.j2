@@ -1,0 +1,23 @@
+{% macro do_buildWrapper(wrapper) %}
+{%   if 'BuildTimeoutWrapper' in wrapper.type %}
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.12.2">
+      {% if 'AbsoluteTimeOutStrategy' in wrapper['strategy'] %}
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+      <timeoutMinutes>{{ wrapper['timeoutMinutes'] }}</timeoutMinutes>
+      </strategy>
+      <failBuild>{{ wrapper['failBuild']}}</failBuild>
+      <writingDescription>{{ wrapper['writingDescription'] }}</writingDescription>
+      {% endif %}
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+{%   endif %}
+
+{%   if 'Timestamper' in wrapper.type %}
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.5.9"/>
+{%   endif %}
+
+{%   if 'AnsiColor' in wrapper.type %}
+  <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+  <colorMapName>{{ wrapper['colorMapName'] }}</colorMapName>
+  </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+{%   endif %}
+{% endmacro %}
