@@ -1,0 +1,24 @@
+{% macro do_parameterizedtrigger(trigger) %}
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.22">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+{%  if trigger.parameters is defined %}
+            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+              <properties>
+{%      for parameter in trigger.parameters %}
+{{          parameter }}
+{%      endfor %}
+              </properties>
+            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+{%  endif %}
+          </configs>
+          <projects>{% for project in trigger.projects %}{{ project }}, {% endfor %}</projects>
+          <condition>{{ trigger.condition | default('SUCCESS') | upper }}</condition>
+{%  if trigger.triggerWithNoParameters is defined %}
+          <triggerWithNoParameters>{{ trigger.triggerWithNoParameters | default(false) }}</triggerWithNoParameters>
+{%  endif %}
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+{% endmacro %}

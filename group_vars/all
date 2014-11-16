@@ -1,8 +1,18 @@
 # vim: set ft=yaml:
+#
+# jenkins job definitions
 env:
   default: &env_defaults
     jenkins:
       jobs:
+
+        base_template:
+          options: &base_template_options { disabled: false, concurrentbuild: false }
+          buildWrappers: &base_template_wrappers
+            - { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
+            - { type: 'Timestamper', options: none }
+            - { type: 'AnsiColor', colorMapName: xterm }
+
         run_ansible:
           description: "Executes Ansible"
           options: { disabled: false, blocks: [ 'downstream', 'upstream' ], concurrentbuild: true }
@@ -20,10 +30,44 @@ env:
                   "#!/bin/bash",
                   "echo $VAULT &gt; .vault",
                   "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
-          buildWrappers:
-            - { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
-            - { type: 'Timestamper', options: none }
-            - { type: 'AnsiColor', colorMapName: xterm }
+          buildWrappers: *base_template_wrappers
+
+        deploy_template:
+          options: &deploy_template_options { disabled: false, blocks: [ 'downstream', 'upstream' ], concurrentbuild: true }
+          builders:
+            - { type: 'shell',
+                command_lines: [
+                  "#!/bin/bash",
+                  "echo $VAULT &gt; .vault",
+                  "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+
+        deploy_job1:
+          options: *deploy_template_options
+          builders:
+            - { type: 'shell',
+                command_lines: [
+                  "#!/bin/bash",
+                  "echo deploy_job1" ]}
+          buildWrappers: *base_template_wrappers
+          publishers:
+            - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+
+        deploy_job2:
+          options: *deploy_template_options
+          builders:
+            - { type: 'shell',
+                command_lines: [
+                  "#!/bin/bash",
+                  "echo deploy_job2" ]}
+          buildWrappers: *base_template_wrappers
+          publishers:
+            - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+
+        deploy_job3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
+        deploy_job4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
+        deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
+        deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
+
   vagrant: *env_defaults
   dev: *env_defaults
   qa: *env_defaults

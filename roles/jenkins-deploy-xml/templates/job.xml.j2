@@ -2,11 +2,14 @@
 {% from 'do_builders.j2' import do_builders with context %}
 {% from 'do_options.j2' import do_options with context %}
 {% from 'do_buildWrapper.j2' import do_buildWrapper with context %}
+{% from 'do_parameterizedtrigger.j2' import do_parameterizedtrigger with context %}
 {%- set job = env[inventory_file]['jenkins']['jobs'][item.key] -%}
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
+{%  if job.descriptions is defined %}
   <description> {{job.description}}</description>
+{%  endif %}
   <keepDependencies>false</keepDependencies>
   <properties>
 
@@ -42,10 +45,14 @@
 {% endif %}
 
 
-
-{% if 'publishers' in job %}
+{% if job.publishers is defined %}
   <publishers>
-  <publishers/>
+{%  for publisher in job.publishers %}
+{%      if 'parametrizedTrigger' in publisher.type %}
+{{          do_parameterizedtrigger(publisher) }}
+{%      endif %}
+{%  endfor %}
+  </publishers>
 {% endif %}
 
 {% if job.buildWrappers is defined %}
