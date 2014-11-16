@@ -9,9 +9,9 @@ env:
         base_template:
           options: &base_template_options { disabled: false, concurrentbuild: false }
           buildWrappers: &base_template_wrappers
-            - { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
-            - { type: 'Timestamper', options: none }
-            - { type: 'AnsiColor', colorMapName: xterm }
+            - &BuildTimeOutWrapper_default { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
+            - &TimeStamper_default { type: 'Timestamper', options: none }
+            - &AnsiColor_default { type: 'AnsiColor', colorMapName: xterm }
 
         run_ansible:
           description: "Executes Ansible"
@@ -59,7 +59,7 @@ env:
                 command_lines: [
                   "#!/bin/bash",
                   "echo deploy_job2" ]}
-          buildWrappers: *base_template_wrappers
+          buildWrappers: [ *BuildTimeOutWrapper_default, *TimeStamper_default, *AnsiColor_default ]
           publishers:
             - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
 
