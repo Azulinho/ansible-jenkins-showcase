@@ -1,10 +1,10 @@
 view(type: BuildPipelineView) {
-    name('PIPELINE')
+    name('PIPELINE1')
     filterBuildQueue()
     filterExecutors()
-    title('Deployment Pipeline')
+    title('Deployment Pipeline 1')
     displayedBuilds(5)
-    selectedJob('DEPLOY-job1')
+    selectedJob('DSL_DEPLOY-job1')
     alwaysAllowManualTrigger()
     showPipelineParameters()
     refreshFrequency(60)

@@ -6,34 +6,78 @@ env:
     jenkins:
       jobs:
 
-        base_template:
-          options: &base_template_options { disabled: false, concurrentbuild: false }
-          buildWrappers: &base_template_wrappers
-            - &BuildTimeOutWrapper_default { type: 'BuildTimeoutWrapper', timeoutMinutes: 60, strategy: 'AbsoluteTimeOutStrategy', failBuild: true, writingDescription: false }
-            - &TimeStamper_default { type: 'Timestamper', options: none }
-            - &AnsiColor_default { type: 'AnsiColor', colorMapName: xterm }
+        jinja2_base_template:
+          options: &base_template_options { disabled: false,
+                                            concurrentbuild: false }
 
-        run_ansible:
+          buildWrappers: &base_template_wrappers
+            - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
+                                             timeoutMinutes: 60,
+                                             strategy: 'AbsoluteTimeOutStrategy',
+                                             failBuild: true,
+                                             writingDescription: false }
+
+            - &TimeStamper_defaults { type: 'Timestamper',
+                                     options: none }
+
+            - &AnsiColor_defaults { type: 'AnsiColor',
+                                   colorMapName: xterm }
+
+        jinja2_run_ansible:
           description: "Executes Ansible"
-          options: { disabled: false, blocks: [ 'downstream', 'upstream' ], concurrentbuild: true }
+          options: { disabled: false,
+                     blocks: [ 'downstream', 'upstream' ],
+                     concurrentbuild: true }
           parameters:
-            - { name: 'INVENTORY_FILE', type: 'choice', description: 'Which Inventory File to use', choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
-            - { name: 'PLAYBOOK', type: 'choice', description: 'Which playbook to execute', choices: { type_string: ['jenkins.yml', 'site.yml']}}
-            - { name: "LIMIT", type: 'string', description: "Ansible --limit", default: "all" }
-            - { name: "TAGS", type: 'string', description: "Ansible --tags", default: "" }
-            - { name: "START_AT_TASK", type: 'string', description: "Ansible --start-at-task", default: "" }
-            - { name: "RELEASE", type: 'string', description: "RELEASE number to use", default: "latest" }
-            - { name: "VAULT", type: 'password', description: "Ansible Vault Password", default: "" }
+            - { name: 'INVENTORY_FILE',
+                type: 'choice',
+                description: 'Which Inventory File to use',
+                choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
+
+            - { name: 'PLAYBOOK',
+                type: 'choice',
+                description: 'Which playbook to execute',
+                choices: { type_string: ['jenkins.yml', 'site.yml']}}
+
+            - { name: "LIMIT",
+                type: 'string',
+                description: "Ansible --limit",
+                default: "all" }
+
+            - { name: "TAGS",
+                type: 'string',
+                description: "Ansible --tags",
+                default: "" }
+
+            - { name: "START_AT_TASK",
+                type: 'string',
+                description: "Ansible --start-at-task",
+                default: "" }
+
+            - { name: "RELEASE",
+                type: 'string',
+                description: "RELEASE number to use",
+                default: "latest" }
+
+            - { name: "VAULT",
+                type: 'password',
+                description: "Ansible Vault Password",
+                default: "" }
+
           builders:
             - { type: 'shell',
                 command_lines: [
                   "#!/bin/bash",
                   "echo $VAULT &gt; .vault",
                   "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+
           buildWrappers: *base_template_wrappers
 
-        deploy_template:
-          options: &deploy_template_options { disabled: false, blocks: [ 'downstream', 'upstream' ], concurrentbuild: true }
+        jinja2_deploy_template:
+          options: &deploy_template_options { disabled: false,
+                                              blocks: [ 'downstream',
+                                                        'upstream' ],
+                                              concurrentbuild: true }
           builders:
             - { type: 'shell',
                 command_lines: [
@@ -41,8 +85,13 @@ env:
                   "echo $VAULT &gt; .vault",
                   "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
-        deploy_job1:
+        jinja2_deploy_job1:
           options: *deploy_template_options
+          parameters:
+            - { name: "PARAMETER1",
+                type: 'string',
+                description: "PARAMETER 1",
+                default: "all" }
           builders:
             - { type: 'shell',
                 command_lines: [
@@ -52,25 +101,31 @@ env:
           publishers:
             - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
 
-        deploy_job2:
+        jinja2_deploy_job2:
           options: *deploy_template_options
           builders:
             - { type: 'shell',
                 command_lines: [
                   "#!/bin/bash",
                   "echo deploy_job2" ]}
-          buildWrappers: [ *BuildTimeOutWrapper_default, *TimeStamper_default, *AnsiColor_default ]
+          buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
           publishers:
             - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
 
-        deploy_job3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
-        deploy_job4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
-        deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
-        deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
+        jinja2_deploy_job3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
+        jinja2_deploy_job4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
+        jinja2_deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
+        jinja2_deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
 
   vagrant: *env_defaults
   dev: *env_defaults
   qa: *env_defaults
   prd: *env_defaults
 
+  # here we set the first jobs in the pipeline,
+  # this will be used by the kick-pipeline role
+  #
 
+pipeline_first_jobs:
+  - DSL_DEPLOY-job1
+  - jinja2_deploy_job1

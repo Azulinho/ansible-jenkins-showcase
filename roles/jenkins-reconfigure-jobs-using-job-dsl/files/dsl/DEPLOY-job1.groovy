@@ -1,8 +1,8 @@
 job {
-    name 'DEPLOY-job1'
+    name 'DSL_DEPLOY-job1'
     parameters {
-        stringParam("PARAM1")
-        stringParam("PARAM2")
+        stringParam("PARAM1", "default1")
+        stringParam("PARAM2", "default2")
     }
     deliveryPipelineConfiguration("Stage 1", "Task 1")
 
@@ -28,7 +28,7 @@ job {
     }
     publishers {
         downstreamParameterized {
-            trigger('DEPLOY-job2') {
+            trigger('DSL_DEPLOY-job2') {
                 currentBuild()
             }
         }

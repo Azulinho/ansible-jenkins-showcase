@@ -5,7 +5,7 @@
   register: keycheck
   ignore_errors: true
 
-- name: Ensure RPMforge GPG key installed
+- name: Ensure RPMforge GPG key is installed
   command: rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
   when: keycheck|failed
 

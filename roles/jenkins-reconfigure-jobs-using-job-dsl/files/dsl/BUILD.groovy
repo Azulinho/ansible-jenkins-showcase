@@ -1,10 +1,10 @@
 view(type: ListView) {
-    name('DEPLOY')
-    description('All deploy jobs')
+    name('DSL_BUILD')
+    description('All Build jobs')
     filterBuildQueue()
     filterExecutors()
     jobs {
-        regex('DEPLOY-*')
+        regex('DSL_BUILD-*')
     }
     columns {
         status()

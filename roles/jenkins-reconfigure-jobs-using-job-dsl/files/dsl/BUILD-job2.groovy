@@ -1,5 +1,5 @@
 job {
-    name 'BUILD-job2'
+    name 'DSL_BUILD-job2'
     scm {
         git('https://github.com/facebook/AsyncDisplayKit.git')
     }
@@ -8,7 +8,7 @@ job {
     }
     steps {
         downstreamParameterized {
-            trigger('DEPLOY-job1') {
+            trigger('DSL_DEPLOY-job1') {
                 currentBuild()
             }
         }

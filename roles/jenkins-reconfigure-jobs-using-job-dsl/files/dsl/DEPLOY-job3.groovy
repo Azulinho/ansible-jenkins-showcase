@@ -1,5 +1,5 @@
 job {
-    name 'DEPLOY-job3'
+    name 'DSL_DEPLOY-job3'
     steps {
         shell("echo lixo")
     }

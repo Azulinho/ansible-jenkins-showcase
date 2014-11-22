@@ -1,7 +1,7 @@
 job {
-    name 'BUILD-job1'
+    name 'DSL_BUILD-job1'
     parameters {
-        stringParam("myParameter1")
+        stringParam("myParameter1", "default1")
     }
     scm {
         git('https://github.com/Azulinho/bristol-devops-jenkins-jobs.git')
@@ -14,7 +14,7 @@ job {
     }
     publishers {
         downstreamParameterized {
-            trigger('DEPLOY-job1') {
+            trigger('DSL_DEPLOY-job1') {
                 currentBuild()
             }
         }

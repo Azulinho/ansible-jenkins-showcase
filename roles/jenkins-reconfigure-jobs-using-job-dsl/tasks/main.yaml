@@ -1,0 +1,102 @@
+---
+
+- name: install httplib2
+  pip: name=httplib2
+    state=present
+  tags:
+    - jenkins_job_dsl
+
+# /etc/jenkins_seed_jobs contains the XML based job definitions for the
+# jenkins seed jobs that will execute the DSL groovy code
+#
+- name: create /etc/jenkins_seed_jobs directories
+  file: path={{ item }} state=directory
+  with_items:
+    - /etc/jenkins_seed_jobs
+    - /etc/jenkins_seed_jobs/seeds
+    - /etc/jenkins_seed_jobs/dsl
+  tags:
+    - jenkins_job_dsl
+
+# we keep the XML seed job definitions in :
+# <role>/files/seed_jobs_definitions/*.xml
+#
+- name: upload jenkins seed jobs definitions
+  copy: dest="/etc/jenkins_seed_jobs/seeds/{{ ''.join(item.split('/')[-1:]) }}"
+    src={{ item }}
+  with_fileglob:
+    - seed_jobs_definitions/*
+  tags:
+    - jenkins_job_dsl
+
+# we register the list of seed jobs into a variable, by grabbing the stdout
+# of the ls command
+#
+- name: gather list of seed jobs
+  command: ls /etc/jenkins_seed_jobs/seeds/
+  register: seed_jobs
+  tags:
+    - jenkins_job_dsl
+
+# and upload the DSL seeds into jenkins
+#
+- name: upload new job and ignore errors if it already exists
+  command: 'curl -X POST "http://localhost:8080/createItem?name={{item}}" --data-binary "@/etc/jenkins_seed_jobs/seeds/{{item}}" -H "Content-Type: text/xml"'
+  with_items:
+    - "{{ seed_jobs.stdout }}"
+  tags:
+    - jenkins_job_dsl
+
+# and update the jobs if they already exist
+#
+- name: update jobs if they already exist
+  command: 'curl -X POST "http://localhost:8080/job/{{item}}/config.xml" --data-binary "@/etc/jenkins_seed_jobs/seeds/{{item}}" -H "Content-Type: text/xml"'
+  with_items:
+    - "{{ seed_jobs.stdout }}"
+  tags:
+    - jenkins_job_dsl
+
+# the workspace for the seed job only gets created when its first built
+# but we need to upload our files to that workspace before we execute it
+# we could have choosen to fetch the DSL code from a git repo
+# but we'd rather keep it all within this role.
+# so here, we build the workspace directory for the seed job
+#
+- name: create seed job workspace directory
+  file: path=/var/lib/jenkins/jobs/seed/workspace
+    state=directory
+    owner=jenkins
+    group=jenkins
+  tags:
+    - jenkins_job_dsl
+
+# above we uploaded the seed job that will kick our DSL code
+# now we upload the DSL code containing the jobs definitions
+# we could use synchronize, but a bug with controlpersist (fixed in 1.8)
+# results in this code hanging, so we loop and do some jinja2 magic instead
+#
+- name: upload jenkins DSL groovy code
+  copy: dest=/var/lib/jenkins/jobs/seed/workspace/{{ ''.join(item.split('/')[-1:]) }} src={{item}}
+  with_fileglob:
+    - dsl/*
+  tags:
+    - jenkins_job_dsl
+
+# make sure we set the ownership of the DSL groovy definitions files to jenkins
+#
+- name: update permissions of DSL groovy code
+  file: path=/var/lib/jenkins/jobs/seed/workspace/ recurse=yes owner=jenkins group=jenkins
+  tags:
+    - jenkins_job_dsl
+
+
+# finally we execute the seed jobs, they will run the groovy DSL code
+# and build the views, jobs, pipeline automatically
+#
+- name: kick builds of seed jobs
+  command: 'curl "http://localhost:8080/job/{{item}}/build"'
+  with_items:
+    - "{{ seed_jobs.stdout }}"
+  tags:
+    - jenkins_job_dsl
+

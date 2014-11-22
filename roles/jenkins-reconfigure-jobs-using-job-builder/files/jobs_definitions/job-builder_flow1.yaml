@@ -1,0 +1,12 @@
+- job:
+    name: job-builder_flow1
+    project_type: job-builder_flow
+    dsl: |
+      build("job-builder_job1")
+      parallel (
+        { build("job-builder_job2a") },
+        { build("job-builder_job2b") },
+      )
+      build("job-builder_job3")
+
+

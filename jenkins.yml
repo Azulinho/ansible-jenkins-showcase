@@ -9,6 +9,8 @@
   roles:
     - git
     - jenkins
-    - jenkins-reconfigure-jobs
-    - jenkins-seed-job
-    - jenkins-deploy-xml
+    - jenkins-job-builder
+    - jenkins-reconfigure-jobs-using-job-builder
+    - jenkins-reconfigure-jobs-using-jinja2
+    - jenkins-reconfigure-jobs-using-job-dsl
+    - jenkins-kick-pipelines
