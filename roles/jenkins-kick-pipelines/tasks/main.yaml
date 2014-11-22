@@ -4,9 +4,10 @@
 # so that we can visualise the full pipeline
 #
 - name: kick first job in the pipeline
-  command: 'curl "http://localhost:8080/job/{{item}}/buildWithParameters"'
+  uri: url="http://localhost:8080/job/{{item}}/buildWithParameters"
+    follow_redirects=all
+    method=GET
   with_items:
     - "{{ pipeline_first_jobs }}"
   tags:
     - jenkins_pipeline
-
