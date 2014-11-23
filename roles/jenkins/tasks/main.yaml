@@ -81,8 +81,6 @@
   sudo: yes
   action: "shell cat {{ jenkins_updates_dest }} | sed '1d;$d' | curl -X POST -H 'Accept: application/json' -d @- http://localhost:{{jenkins_port}}/updateCenter/byId/default/postBack"
   when: jenkins_updates.changed
-  notify:
-    - 'safe-restart jenkins'
 
 - name: List plugins
   sudo: yes
@@ -96,8 +94,6 @@
   action: command java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} install-plugin {{ item }}
   when: plugins_installed.changed and plugins_installed.stdout.find('{{ item }}') == -1
   with_items: jenkins_plugins
-  notify:
-    - 'safe-restart jenkins'
 
 - name: List plugins to be updated
   sudo: yes
@@ -108,5 +104,12 @@
   sudo: yes
   action: command java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} install-plugin {{ plugins_updates.stdout }}
   when: plugins_updates.stdout != ''
-  notify:
-    - 'safe-restart jenkins'
+
+- name: safe-restart jenkins
+  sudo: yes
+  command: java -jar {{ jenkins_cli_dest }} -s http://localhost:8080 safe-restart
+  when: plugins_updates.stdout != ''
+
+- name: wait for jenkins to restart
+  command: sleep 90
+  when: plugins_updates.stdout != ''
