@@ -4,7 +4,7 @@
 # so that we can visualise the full pipeline
 #
 - name: we need to wait for the seed job to finish
-  wait_for: delay=90
+  command: sleep 90
   tags:
     - jenkins_pipeline
 
