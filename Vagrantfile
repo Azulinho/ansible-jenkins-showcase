@@ -8,7 +8,7 @@ box_url = 'https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3
 
 boxes = [
   {
-    :name => :bristoldevops,
+    :name => :jenkins,
     :ram => 1512,
     :book => 'jenkins',
     :ip => "2"
