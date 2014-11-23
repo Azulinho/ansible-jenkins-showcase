@@ -10,22 +10,22 @@ it showcases integration with a few different libraries to deploy and update plu
 
 The following roles are used in this demo,
 
-yum-tools
-yum-repo-centos-release-SCL
-yum-repo-epel
-yum-repo-jenkins
-yum-repo-rpmforge
-python27
-python-pip
-git
-java-openjdk-jdk
-jenkins
-jenkins-plugins
-jenkins-job-builder
-jenkins-reconfigure-jobs-using-jinja2
-jenkins-reconfigure-jobs-using-job-builder
-jenkins-reconfigure-jobs-using-job-dsl
-jenkins-kick-pipelines
+* yum-tools
+* yum-repo-centos-release-SCL
+* yum-repo-epel
+* yum-repo-jenkins
+* yum-repo-rpmforge
+* python27
+* python-pip
+* git
+* java-openjdk-jdk
+* jenkins
+* jenkins-plugins
+* jenkins-job-builder
+* jenkins-reconfigure-jobs-using-jinja2
+* jenkins-reconfigure-jobs-using-job-builder
+* jenkins-reconfigure-jobs-using-job-dsl
+* jenkins-kick-pipelines
 
 Simply run:
 
