@@ -56,12 +56,12 @@
     - init-scripts
 
 # If Jenkins is installed or updated, wait for pulling the Jenkins CLI
-- name: "{{ startup_delay_s | default(10) }}s delay while starting Jenkins"
-  wait_for: port={{ jenkins_port }} delay={{ startup_delay_s | default(10) }}
+- name: "{{ startup_delay_s | default(60) }}s delay while starting Jenkins"
+  wait_for: port={{ jenkins_port }} delay={{ startup_delay_s | default(60) }}
   when: jenkins_install.changed
 
 # Create Jenkins CLI destination directory
-- name: "Create Jenkins CLI destination directory: ${jenkins.dest}"
+- name: "Create Jenkins CLI destination directory"
   sudo: yes
   action: file path={{ jenkins_dest }} state=directory
 
