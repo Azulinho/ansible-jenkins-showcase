@@ -110,6 +110,6 @@
   command: java -jar {{ jenkins_cli_dest }} -s http://localhost:8080 safe-restart
   when: plugins_updates.stdout != ''
 
-- name: wait for jenkins to restart
-  command: sleep 90
+- name: wait for jenkins to restart, it can take forever
+  command: sleep 180
   when: plugins_updates.stdout != ''
