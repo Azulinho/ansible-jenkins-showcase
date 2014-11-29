@@ -47,7 +47,7 @@
 - name: safe-restart jenkins
   sudo: yes
   command: java -jar {{ env[inventory_file]['jenkins']['cli_dest']}} -s http://localhost:{{env[inventory_file]['jenkins']['port']}} safe-restart
-  when: plugins_updates.stdout != ''
+  when: plugins_updates.stdout != '' or plugins_installed.changed
   tags: ['jenkins', 'jenkins_plugins']
 
 - name: wait for jenkins to restart, it can take forever

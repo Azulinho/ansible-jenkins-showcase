@@ -14,6 +14,7 @@
   uri: url="http://localhost:8080/job/{{item}}/buildWithParameters"
     follow_redirects=all
     method=GET
+    status_code=200,201
   with_items:
     - "{{ env[inventory_file]['jenkins']['pipeline_first_jobs'] }}"
   tags:
