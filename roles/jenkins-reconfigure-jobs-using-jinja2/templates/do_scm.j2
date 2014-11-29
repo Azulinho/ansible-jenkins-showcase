@@ -1,0 +1,25 @@
+{% macro do_scm(repo) %}
+
+{%   if 'git' in repo.type %}
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.3">
+    <configVersion>{{ repo.config_version |default(2)}}</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+      <url>{{ repo.url }}</url>
+{%      if repo.credentialsID is defined                        %}
+       <credentialsId>{{ credentialsID }}</credentialsId>
+{%      endif %}
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+{%      if repo.branches is defined                        %}
+    <branches>
+{%          for branch in repo.branches %}
+      <hudson.plugins.git.BranchSpec>
+        <name>{{ branch }}</name>
+      </hudson.plugins.git.BranchSpec>
+{%          endfor %}
+    </branches>
+{%      endif %}
+  </scm>
+{%   endif %}
+{% endmacro %}

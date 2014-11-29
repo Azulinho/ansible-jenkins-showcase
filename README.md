@@ -20,7 +20,6 @@ The following roles are used in this demo,
 * git
 * java-openjdk-jdk
 * jenkins
-* jenkins-plugins
 * jenkins-job-builder
 * jenkins-reconfigure-jobs-using-jinja2
 * jenkins-reconfigure-jobs-using-job-builder
@@ -29,7 +28,8 @@ The following roles are used in this demo,
 
 Simply run:
 
-    vagrant up
+    rake
+    vagrant provision jenkins
 
 and then connect to http://localhost:8080
 

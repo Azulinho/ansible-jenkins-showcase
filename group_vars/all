@@ -1,9 +1,59 @@
 # vim: set ft=yaml:
 #
-# jenkins job definitions
 env:
   default: &env_defaults
+    # jenkins configuration settings
     jenkins:
+      version: 1.568-1.1
+      dest: /opt/jenkins
+      lib: /var/lib/jenkins
+      port: 8080
+      prefix: /jenkins
+      cli_dest: '/opt/jenkins/jenkins-cli.jar' # Jenkins CLI destination
+      updates_dest: '/opt/jenkins/updates_jenkins.json' # Jenkins updates file
+
+      # list of jenkins plugins to be installed on the jenkins box
+      plugins:
+        - build-pipeline-plugin
+        - job-dsl
+        - git
+        - parameterized-trigger
+        - ansicolor
+        - build-flow-plugin
+        - build-timeout
+        - build-with-parameters
+        - buildgraph-view
+        - config-autorefresh-plugin
+        - configurationslicing
+        - copyartifact
+        - credentials
+        - delivery-pipeline-plugin
+        - envinject
+        - external-monitor-job
+        - flexible-publish
+        - git-client
+        - github-api
+        - github-oauth
+        - github
+        - gitlab-hook
+        - greenballs
+        - job-log-logger-plugin
+        - jobConfigHistory
+        - log-parser
+        - mailer
+        - mask-passwords
+        - multiple-scms
+        - naginator
+        - parameterized-trigger
+        - publish-over-ssh
+        - rebuild
+        - show-build-parameters
+        - ssh-agent
+        - ssh-credentials
+        - ci-game
+        - throttle-concurrents
+        - timestamper
+
       jobs:
 
         jinja2_base_template:
@@ -37,7 +87,7 @@ env:
             - { name: 'PLAYBOOK',
                 type: 'choice',
                 description: 'Which playbook to execute',
-                choices: { type_string: ['jenkins.yml', 'site.yml']}}
+                choices: { type_string: ['jenkins.yml', 'zabbix.yml', 'site.yml']}}
 
             - { name: "LIMIT",
                 type: 'string',
@@ -63,6 +113,12 @@ env:
                 type: 'password',
                 description: "Ansible Vault Password",
                 default: "" }
+
+          scm:
+            - { type: 'git',
+                url: 'https://github.com/Azulinho/ansible-jenkins-showcase.git',
+                branches: ['*/master'] }
+
 
           builders:
             - { type: 'shell',
@@ -129,3 +185,16 @@ env:
 pipeline_first_jobs:
   - DSL_DEPLOY-job1
   - jinja2_deploy_job1
+
+
+# zabbix settings
+zabbix_client_port : "10050"
+zabbix_nodeid : 99
+zabbix_server: zabbix
+zabbix_server_port : "10051"
+
+zabbix_username : admin
+zabbix_password : password
+zabbix_mysql_username: zabbix
+zabbix_mysql_password: password
+

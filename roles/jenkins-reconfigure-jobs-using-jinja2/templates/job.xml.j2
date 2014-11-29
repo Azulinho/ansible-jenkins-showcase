@@ -3,6 +3,7 @@
 {% from 'do_options.j2' import do_options with context %}
 {% from 'do_buildWrapper.j2' import do_buildWrapper with context %}
 {% from 'do_parameterizedtrigger.j2' import do_parameterizedtrigger with context %}
+{% from 'do_scm.j2' import do_scm with context %}
 {%- set job = env[inventory_file]['jenkins']['jobs'][item.key] -%}
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
@@ -42,6 +43,12 @@
 {{ do_builders(builder) }}
   {% endfor %}
   </builders>
+{% endif %}
+
+{% if job.scm is defined %}
+{%  for entry in job.scm %}
+{{      do_scm(entry) }}
+{%  endfor %}
 {% endif %}
 
 

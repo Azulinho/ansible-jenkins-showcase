@@ -22,12 +22,14 @@
   register: jobs
 
 - name: test job definitions before updating
-  command: jenkins-jobs test /etc/jenkins_jobs/definitions/{{ item }}
+  command: su - jenkins -c "jenkins-jobs test /etc/jenkins_jobs/definitions/{{ item }}"
   with_items:
-    - "{{ jobs.stdout }}"
+    - "{{ jobs.stdout_lines }}"
   when: upload.changed
 
 - name: upload job definitions
-  command: jenkins-jobs update /etc/jenkins_jobs/definitions/
-  #when: upload.changed
+  command: su - jenkins -c "jenkins-jobs update /etc/jenkins_jobs/definitions/{{item}}"
+  with_items:
+    - "{{ jobs.stdout_lines }}"
+  when: upload.changed
 

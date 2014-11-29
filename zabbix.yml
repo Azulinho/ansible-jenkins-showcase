@@ -1,0 +1,13 @@
+---
+- hosts: zabbix_servers
+  max_fail_percentage: 1
+  serial: 1
+  accelerate: false
+  sudo: true
+
+  roles:
+    - dns
+    - python-pip
+    - apache
+    - mysql-server
+    - zabbix-server

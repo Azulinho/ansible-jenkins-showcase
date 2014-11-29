@@ -1,0 +1,55 @@
+# Configuration tasks for zabbix server:
+#
+- name: set zabbix_server.conf
+  template:
+    src=zabbix_server.conf
+    dest=/etc/zabbix_server.conf
+    mode=0640
+  notify: restart zabbix server
+  tags:
+    - zabbix
+    - zabbix-server
+
+# /etc/zabbix/templates contains all the zabbix templates that will be
+# imported into zabbix
+#
+- name: create xml template directory
+  file: path=/etc/zabbix/templates state=directory
+  tags:
+    - zabbix
+    - zabbix-server
+
+# quickfix:
+# https://www.zabbix.com/documentation/2.2/manual/distributed_monitoring/nodes
+# says that 'zabbix_server -n <node id>' can only be executed once
+# a second execution will corrupt the database
+# also, both apache, zabbix-server must not be running
+#
+# todo: orchestrate this a little bit better
+#
+- name: is this the first time we setup zabbix?
+  stat: path=/var/tmp/zabbix_first_boot_complete
+  register: zabbix_first_boot_complete
+
+- name: prepare zabbix database nodes
+  command: "{{ item }}"
+  with_items:
+    - service httpd stop
+    - service zabbix-server stop
+    - zabbix_server -n {{zabbix_nodeid}}
+    - service zabbix-server start
+    - service httpd start
+  when: zabbix_first_boot_complete.stat.exists == False
+
+# Then make sure zabbix server is running
+#
+- name: enable and start zabbix-server
+  service: name=zabbix-server state=started enabled=yes
+  tags:
+    - zabbix
+    - zabbix-server
+
+# touch /var/tmp/zabbix_first_boot_complete
+#
+- name: create /var/tmp/zabbix_first_boot_complete
+  file: path=/var/tmp/zabbix_first_boot_complete state=touch

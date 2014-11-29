@@ -3,8 +3,11 @@
 #
 
 [jenkins_servers]
-ansible group=jenkins_servers deploy_env=vagrant
+jenkins group=jenkins_servers deploy_env=vagrant
 
+[zabbix_servers]
+zabbix group=zabbix_servers deploy_env=vagrant
 
 [vagrant:children]
 jenkins_servers
+zabbix_servers

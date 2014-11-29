@@ -1,0 +1,49 @@
+# Zabbix MySQL database initialisation steps:
+# - should run only once
+#
+- name: create mysql database
+  mysql_db: name=zabbix state=present
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: check database exists
+  stat: path=/var/lib/mysql/zabbix/users.frm
+  register: zabbix_db_exists
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: load database schema
+  when: zabbix_db_exists.stat.exists == false
+  shell: "mysql -uroot -hlocalhost zabbix < /usr/share/zabbix-mysql/schema.sql"
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: load database images
+  when: zabbix_db_exists.stat.exists == false
+  shell: "mysql -uroot -hlocalhost zabbix < /usr/share/zabbix-mysql/images.sql"
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: load database data
+  when: zabbix_db_exists.stat.exists == false
+  shell: "mysql -uroot -hlocalhost zabbix < /usr/share/zabbix-mysql/data.sql"
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: create zabbix mysql user
+  mysql_user: name={{zabbix_mysql_username}} password={{zabbix_mysql_password}}  priv=zabbix.*:ALL host='localhost' state=present
+  tags:
+    - zabbix
+    - zabbix-server
+
+- name: update zabbix admin password
+  shell: mysql -uroot -hlocalhost zabbix -e "UPDATE users SET passwd=md5('{{zabbix_password}}') WHERE alias='Admin';"
+  tags:
+    - zabbix
+    - zabbix-server
+    - zabbix-password

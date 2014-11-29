@@ -12,7 +12,15 @@ boxes = [
     :ram => 1512,
     :book => 'jenkins',
     :ip => "2"
-  }
+  },
+  {
+    :name => :zabbix,
+    :ram => 512,
+    :book => 'zabbix',
+    :ip => "3"
+  },
+
+
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -53,12 +61,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.start_at_task = ENV['START_AT_TASK']
         end
 
-        ansible.verbose = 'v'
+        ansible.verbose = 'vvv'
         ansible.sudo = true
         ansible.playbook = "vagrant-#{opts[:book]}.yml"
         ansible.inventory_path= 'vagrant'
         ansible.vault_password_file = 'vagrant-vault'
-        ansible.limit = 'all'
+        ansible.limit = opts[:name].to_s
 
         ansible.extra_vars = {
           'deploy_environment'    => 'vagrant',

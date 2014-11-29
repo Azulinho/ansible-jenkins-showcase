@@ -7,10 +7,33 @@
 
 
   roles:
+    # configure /etc/resolv.conf
+    - dns
+
+    # get the latest git, the version from RH is pretty rubbish
     - git
+
+    # jenkins will be the ansible control-host, so we install ansible on it
+    - ansible
+
+    # jenkins role installs jenkins
     - jenkins
+
+      # jenkins-plugins role installs the jenkins-plugins
+    - jenkins-plugins
+
+    # jenkins-job-builder installs the python based tool with the same name
     - jenkins-job-builder
+
+    # we then go about deploying a range of jenkins jobs using
+    # the python tool jenkins-job-builder
     - jenkins-reconfigure-jobs-using-job-builder
+
+    # deploy jobs using XML templating from jinja2
     - jenkins-reconfigure-jobs-using-jinja2
+
+    # deploy jobs using the groovy DSL
     - jenkins-reconfigure-jobs-using-job-dsl
+
+    # execute the pipelines
     - jenkins-kick-pipelines

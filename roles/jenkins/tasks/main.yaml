@@ -4,112 +4,97 @@
 # repository
 #
 - name: create user for jenkins
-  user: name=jenkins comment="Jenkins CI" home="/var/lib/jenkins" shell="/bin/bash"
+  user: name=jenkins
+    comment="Jenkins CI"
+    home="/var/lib/jenkins"
+    shell="/bin/bash"
+  tags: ['jenkins']
 
 - name: make sure /var/lib/jenkins/.ssh exists
-  file: path=/var/lib/jenkins/.ssh owner=jenkins group=jenkins mode=0700 state=directory
-  tags:
-    - ssh
+  file: path=/var/lib/jenkins/.ssh
+    owner=jenkins
+    group=jenkins
+    mode=0700
+    state=directory
+  tags: ['jenkins']
 
-# We've manipulated the jenkins user, ssh keys and homedir,
-# now we can install jenkins
+# We install a specific version of jenkins to avoid compability
+# issues with plugins
 #
 - name: unlock jenkins version in yum
-  lineinfile: dest=/etc/yum/pluginconf.d/versionlock.list state=absent regexp='^.:jenkins-.*'
-  tags:
-    - jenkins-lock
-    - jenkins-pkg
+  lineinfile: dest=/etc/yum/pluginconf.d/versionlock.list
+    state=absent
+    regexp='^.:jenkins-.*'
+  tags: ['jenkins', 'versionlock']
 
 - name: Ensure jenkins is installed
-  yum: name=jenkins-{{jenkins_version}}
+  yum: name=jenkins-{{ env[inventory_file]['jenkins']['version']}}
     enablerepo=epel
     state=present
   register: jenkins_install
-  tags:
-    - jenkins-pkg
+  tags: ['jenkins', 'versionlock']
 
 - name: lock jenkins
-  command: yum versionlock jenkins-{{ jenkins_version }}
-  tags:
-    - jenkins-lock
-    - jenkins-pkg
+  command: yum versionlock jenkins-{{env[inventory_file]['jenkins']['version']}}
+  tags: ['jenkins', 'versionlock']
 
+# configure jenkins to our liking
+#
 - name: Configure Jenkins Port
   sudo: yes
   when: port is defined
-  lineinfile: dest=/etc/default/jenkins regexp=^HTTP_PORT= line=HTTP_PORT={{jenkins_port}}
+  lineinfile: dest=/etc/default/jenkins
+    regexp=^HTTP_PORT=
+    line=HTTP_PORT={{env[inventory_file]['jenkins']['port']}}
+  tags: ['jenkins']
 
 - name: Configure Jenkins Prefix
   sudo: yes
   when: prefix is defined
-  lineinfile: dest=/etc/default/jenkins regexp=^PREFIX= line=PREFIX={{jenkins_prefix}}
+  lineinfile: dest=/etc/default/jenkins
+    regexp=^PREFIX=
+    line=PREFIX={{env[inventory_file]['jenkins']['prefix']}}
+  tags: ['jenkins']
 
 - name: Configure Jenkins E-mail
   sudo: yes
   when: email is defined
-  template: src=hudson.tasks.Mailer.xml.j2 dest={{ jenkins_lib }}/hudson.tasks.Mailer.xml owner=jenkins group=jenkins mode=0644
+  template: src=hudson.tasks.Mailer.xml.j2
+    dest={{env[inventory_file]['jenkins']['lib']}}/hudson.tasks.Mailer.xml
+    owner=jenkins
+    group=jenkins
+    mode=0644
+  tags: ['jenkins']
 
-# Initiate the services
+# Start jenkins, we need it up and running before we are able to download
+# the CLI tool
 - name: Ensure jenkins is running
-  service: name=jenkins enabled=yes state=running
-  tags:
-    - init-scripts
+  service: name=jenkins
+    enabled=yes
+    state=running
+  tags: ['jenkins', 'initscripts']
 
 # If Jenkins is installed or updated, wait for pulling the Jenkins CLI
-- name: "{{ startup_delay_s | default(60) }}s delay while starting Jenkins"
-  wait_for: port={{ jenkins_port }} delay={{ startup_delay_s | default(60) }}
+# # wish there was a jenkins-cli rpm package
+#
+- name: "{{ startup_delay_s | default(90) }}s delay while starting Jenkins"
+  wait_for: port={{env[inventory_file]['jenkins']['port']}}
+    delay={{ startup_delay_s | default(90) }}
   when: jenkins_install.changed
+  tags: ['jenkins']
 
 # Create Jenkins CLI destination directory
 - name: "Create Jenkins CLI destination directory"
+  file: path={{ env[inventory_file]['jenkins']['dest'] }}
+    state=directory
   sudo: yes
-  action: file path={{ jenkins_dest }} state=directory
+  tags: ['jenkins', 'jenkinscli']
 
 # Get Jenkins CLI from localhost
 - name: Get Jenkins CLI
+  get_url: url=http://localhost:{{env[inventory_file]['jenkins']['port']}}/jnlpJars/jenkins-cli.jar
+    dest={{env[inventory_file]['jenkins']['jenkinscli']}}
+    mode=0440
   sudo: yes
-  action: get_url url=http://localhost:{{jenkins_port}}/jnlpJars/jenkins-cli.jar dest={{ jenkins_cli_dest }} mode=0440
+  tags: ['jenkins', 'jenkinscli']
 
-# Get latest Jenkins update file
-- name: Get Jenkins updates
-  sudo: yes
-  action: get_url url=http://updates.jenkins-ci.org/update-center.json dest={{ jenkins_updates_dest }} thirsty=yes mode=0440
-  register: jenkins_updates
-
-# Jenkins Update-center
-- name: Update-center Jenkins
-  sudo: yes
-  action: "shell cat {{ jenkins_updates_dest }} | sed '1d;$d' | curl -X POST -H 'Accept: application/json' -d @- http://localhost:{{jenkins_port}}/updateCenter/byId/default/postBack"
-  when: jenkins_updates.changed
-
-- name: List plugins
-  sudo: yes
-  action: shell java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} list-plugins | cut -f 1 -d ' '
-  when: jenkins_plugins is defined
-  register: plugins_installed
-
-# Install/update Jenkins plugins
-- name: Install/update plugins
-  sudo: yes
-  action: command java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} install-plugin {{ item }}
-  when: plugins_installed.changed and plugins_installed.stdout.find('{{ item }}') == -1
-  with_items: jenkins_plugins
-
-- name: List plugins to be updated
-  sudo: yes
-  action: shell java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} list-plugins | grep ')$' | cut -f 1 -d ' ' | sed ':a;N;$!ba;s/\n/ /g'
-  register: plugins_updates
-
-- name: Update plugins
-  sudo: yes
-  action: command java -jar {{ jenkins_cli_dest }} -s http://localhost:{{jenkins_port}} install-plugin {{ plugins_updates.stdout }}
-  when: plugins_updates.stdout != ''
-
-- name: safe-restart jenkins
-  sudo: yes
-  command: java -jar {{ jenkins_cli_dest }} -s http://localhost:8080 safe-restart
-  when: plugins_updates.stdout != ''
-
-- name: wait for jenkins to restart, it can take forever
-  command: sleep 180
-  when: plugins_updates.stdout != ''

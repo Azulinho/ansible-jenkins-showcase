@@ -1,0 +1,13 @@
+---
+- name: install apache
+  command: yum --disableplugin=fastestmirror install httpd -y
+  tags: apache
+
+- name: install mod_ssl
+  command: yum --disableplugin=fastestmirror install mod_ssl -y
+  notify: restart apache
+  tags: apache
+
+- name: enable and start apache
+  service: name=httpd state=started enabled=yes
+  tags: apache
