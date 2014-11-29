@@ -125,8 +125,9 @@ env:
                 command_lines: [
                   "#!/bin/bash",
                   "export PATH=/usr/local/bin:$PATH",
+                  "export PYTHONUNBUFFERED=1",
                   "echo $VAULT &gt; .vault",
-                  "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+                  "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
           buildWrappers: *base_template_wrappers
 
