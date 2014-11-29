@@ -124,6 +124,7 @@ env:
             - { type: 'shell',
                 command_lines: [
                   "#!/bin/bash",
+                  "export PATH=/usr/local/bin:$PATH",
                   "echo $VAULT &gt; .vault",
                   "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 

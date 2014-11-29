@@ -1,7 +1,7 @@
-{% macro do_string_parameter(string_parameter) %}
+{% macro do_string_parameter(values) %}
           <hudson.model.StringParameterDefinition>
-            <name>{{ string_parameter['name'] }}</name>
-            <description>{{ string_parameter['description'] }}</description>
-            <defaultValue>{{ string_parameter['default'] }}</defaultValue>
+            <name>{{ values.name }}</name>
+            <description>{{ values.description |default('') }}</description>
+            <defaultValue>{{ values.default | default('') }}</defaultValue>
         </hudson.model.StringParameterDefinition>
 {% endmacro %}

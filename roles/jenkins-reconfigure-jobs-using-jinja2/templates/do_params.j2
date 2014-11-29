@@ -4,23 +4,20 @@
 {% macro do_params(parameters) %}
     <hudson.model.ParametersDefinitionProperty>
         <parameterDefinitions>
-{%  for parameter_values in parameters %}
-{%    if 'choice' in parameter_values.type %}
-{{      do_choice_parameter(parameter_values) }}
+{%  for parameter_block in parameters %}
+
+{%    if 'choice' in parameter_block.type %}
+{{      do_choice_parameter(parameter_block) }}
+{%    endif %}
+
+{%    if 'string' in parameter_block.type %}
+{{        do_string_parameter(parameter_block) }}
+{%    endif %}
+
+{%    if 'password' in parameter_block.type %}
+{{        do_password_parameter(parameter_block) }}
 {%    endif %}
 {%  endfor %}
-
-{%  if 'type_string' in parameters %}
-{%     for string_parameter in values %}
-{{        do_string_parameter(string_parameter) }}
-{%     endfor %}
-{%  endif %}
-
-{%  if 'type_password' in parameters %}
-{%     for password_parameter in values %}
-{{        do_password_parameter(password_parameter) }}
-{%     endfor %}
-{%  endif %}
         </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
 {% endmacro %}
