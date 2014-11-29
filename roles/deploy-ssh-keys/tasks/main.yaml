@@ -1,0 +1,28 @@
+---
+
+- name: create ~/.ssh directory
+  file: path={{ '/'.join(item.path.split('/')[:-1]) }}
+    state=directory
+    mode=0700
+    owner={{ item.owner }}
+    group={{ item.group |default(item.owner) }}
+  with_items: env[inventory_file]['ssh_keys']
+  when: item.hostgroup == group
+  tags: ['deploy-ssh-keys']
+
+- name: deploy ssh keys
+  template: dest={{ item.path}}
+    src=sshkey.j2
+  with_items: env[inventory_file]['ssh_keys']
+  when: item.hostgroup == group
+  tags: ['deploy-ssh-keys']
+
+- name: set permissions
+  file: path={{ item.path }}
+    state=file
+    mode=0600
+    owner={{ item.owner }}
+    group={{ item.group |default(item.owner) }}
+  with_items: env[inventory_file]['ssh_keys']
+  when: item.hostgroup == group
+  tags: ['deploy-ssh-keys']

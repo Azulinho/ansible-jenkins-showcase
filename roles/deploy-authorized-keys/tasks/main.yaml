@@ -1,0 +1,19 @@
+---
+- name: create directory for authorized_key
+  file: path={{ '/'.join(item.path.split('/')[:-1]) }}
+    state=directory
+    mode=700
+    owner={{ item.owner }}
+    group={{ item.group |default(item.owner) }}
+  with_items: env[inventory_file]['authorized_keys']
+  when: item.hostgroup == group
+  tags: ['deploy-authorized-keys']
+
+- name: deploy authorized_key
+  lineinfile: dest={{ item.path }}
+    create=yes
+    state=present
+    line="{{ item.contents }}"
+  with_items: env[inventory_file]['authorized_keys']
+  when: item.hostgroup == group
+  tags: ['deploy-authorized-keys']

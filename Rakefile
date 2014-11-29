@@ -21,4 +21,5 @@ task :vagrant_up do
   ['zabbix', 'jenkins'].each do |box|
     system("vagrant up #{ box } --no-provision")
   end
+  system("vagrant provision jenkins")
 end

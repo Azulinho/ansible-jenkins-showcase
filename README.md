@@ -29,8 +29,7 @@ The following roles are used in this demo,
 Simply run:
 
     rake
-    vagrant provision jenkins
 
-and then connect to http://localhost:8080
+and then connect to http://jenkins:8080
 
 you should see a fully deployed, configured jenkins with two pipelines and a series of jobs.

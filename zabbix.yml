@@ -11,3 +11,4 @@
     - apache
     - mysql-server
     - zabbix-server
+    - deploy-authorized-keys

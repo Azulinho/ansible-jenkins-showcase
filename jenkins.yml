@@ -19,6 +19,9 @@
     # jenkins role installs jenkins
     - jenkins
 
+    # deploy SSH keys
+    - deploy-ssh-keys
+
       # jenkins-plugins role installs the jenkins-plugins
     - jenkins-plugins
 
