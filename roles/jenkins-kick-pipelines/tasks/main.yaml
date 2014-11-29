@@ -13,7 +13,7 @@
     follow_redirects=all
     method=GET
   with_items:
-    - "{{ pipeline_first_jobs }}"
+    - "{{ env[inventory_file]['jenkins']['pipeline_first_jobs'] }}"
   tags:
     - jenkins_pipeline
 

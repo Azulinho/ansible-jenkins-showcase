@@ -1,4 +1,4 @@
-# vim: set ft=yaml:
+# vim: ft=yaml:foldmethod=indent:foldenable
 #
 env:
   default: &env_defaults
@@ -226,19 +226,17 @@ env:
         jinja2_deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
         jinja2_deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
 
+      # here we set the first jobs in the pipeline,
+      # this will be used by the kick-pipeline role
+      #
+      pipeline_first_jobs:
+        - DSL_DEPLOY-job1
+        - jinja2_deploy_job1
+
   vagrant: *env_defaults
   dev: *env_defaults
   qa: *env_defaults
   prd: *env_defaults
-
-  # here we set the first jobs in the pipeline,
-  # this will be used by the kick-pipeline role
-  #
-
-pipeline_first_jobs:
-  - DSL_DEPLOY-job1
-  - jinja2_deploy_job1
-
 
 # zabbix settings
 zabbix_client_port : "10050"
