@@ -20,7 +20,7 @@
 - name: List plugins
   sudo: yes
   shell: java -jar {{env[inventory_file]['jenkins']['cli_dest']}} -s http://localhost:{{env[inventory_file]['jenkins']['port']}} list-plugins | cut -f 1 -d ' '
-  when: jenkins_plugins is defined
+  when: env[inventory_file]['jenkins']['plugins'] is defined
   register: plugins_installed
   tags: ['jenkins', 'jenkins_plugins']
 

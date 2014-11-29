@@ -3,8 +3,10 @@
 # Trigger pipelines, we need the first job to be built at least once
 # so that we can visualise the full pipeline
 #
-- name: we need to wait for the seed job to finish
-  command: sleep 90
+
+- name: install httplib2
+  pip: name=httplib2
+    state=present
   tags:
     - jenkins_pipeline
 

@@ -93,7 +93,7 @@
 # Get Jenkins CLI from localhost
 - name: Get Jenkins CLI
   get_url: url=http://localhost:{{env[inventory_file]['jenkins']['port']}}/jnlpJars/jenkins-cli.jar
-    dest={{env[inventory_file]['jenkins']['jenkinscli']}}
+    dest={{env[inventory_file]['jenkins']['cli_dest']}}
     mode=0440
   sudo: yes
   tags: ['jenkins', 'jenkinscli']

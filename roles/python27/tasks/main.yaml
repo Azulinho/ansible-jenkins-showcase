@@ -13,8 +13,24 @@
   tags:
     - python27
 
+- name: configure python27
+  shell: ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS='-Wl,-rpath /usr/local/lib'
+  args:
+    creates: /usr/local/bin/python2.7
+    chdir: /tmp/Python-2.7.6
+  tags:
+    - python27
+
+- name: compiles python27
+  shell: make
+  args:
+    creates: /usr/local/bin/python2.7
+    chdir: /tmp/Python-2.7.6
+  tags:
+    - python27
+
 - name: installs python27
-  shell: ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS='-Wl,-rpath /usr/local/lib' & make & make altinstall
+  shell: make altinstall
   args:
     creates: /usr/local/bin/python2.7
     chdir: /tmp/Python-2.7.6

@@ -101,3 +101,8 @@
   tags:
     - jenkins_job_dsl
 
+
+- name: we need to wait for the seed job to finish
+  command: sleep 90
+  tags:
+    - jenkins_job_dsl
