@@ -124,43 +124,43 @@ env:
             - &AnsiColor_defaults { type: 'AnsiColor',
                                    colorMapName: xterm }
 
-        jinja2_run_ansible:
+        jinja2_run_ansible: &jinja2_run_ansible
           description: "Executes Ansible"
           options: { disabled: false,
                      blocks: [ 'downstream', 'upstream' ],
                      concurrentbuild: true }
-          parameters:
-            - { name: 'INVENTORY_FILE',
+          parameters: &jinja2_run_ansible_parameters
+            - &inventory_file { name: 'INVENTORY_FILE',
                 type: 'choice',
                 description: 'Which Inventory File to use',
                 choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
 
-            - { name: 'PLAYBOOK',
+            - &playbook { name: 'PLAYBOOK',
                 type: 'choice',
                 description: 'Which playbook to execute',
                 choices: { type_string: ['jenkins.yml', 'zabbix.yml', 'site.yml']}}
 
-            - { name: "LIMIT",
+            - &limit { name: "LIMIT",
                 type: 'string',
                 description: "Ansible --limit",
                 default: "all" }
 
-            - { name: "TAGS",
+            - &tags { name: "TAGS",
                 type: 'string',
                 description: "Ansible --tags",
                 default: "" }
 
-            - { name: "START_AT_TASK",
+            - &start_at_task { name: "START_AT_TASK",
                 type: 'string',
                 description: "Ansible --start-at-task",
                 default: "" }
 
-            - { name: "RELEASE",
+            - &release { name: "RELEASE",
                 type: 'string',
                 description: "RELEASE number to use",
                 default: "latest" }
 
-            - { name: "VAULT",
+            - &vault { name: "VAULT",
                 type: 'password',
                 description: "Ansible Vault Password",
                 default: "" }
@@ -169,7 +169,6 @@ env:
             - { type: 'git',
                 url: 'https://github.com/Azulinho/ansible-jenkins-showcase.git',
                 branches: ['*/master'] }
-
 
           builders:
             - { type: 'shell',
@@ -181,6 +180,24 @@ env:
                   "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
           buildWrappers: *base_template_wrappers
+
+        jinja2_deploy_zabbix:
+          <<: *jinja2_run_ansible
+          parameters: [
+            <<: *limit,
+            <<: *tags,
+            <<: *start_at_task,
+            <<: *release,
+            <<: *vault,
+            { name: 'PLAYBOOK',
+                type: 'string',
+                description: 'Which playbook to execute',
+                default: 'zabbix.yml'},
+            { name: 'INVENTORY_FILE',
+                type: 'string',
+                description: 'Which Inventory File to use',
+                default: 'vagrant'} ]
+
 
         jinja2_deploy_template:
           options: &deploy_template_options { disabled: false,
