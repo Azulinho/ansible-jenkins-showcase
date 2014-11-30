@@ -33,3 +33,5 @@ Simply run:
 and then connect to http://jenkins:8080
 
 you should see a fully deployed, configured jenkins with two pipelines and a series of jobs.
+
+One job of particular interest *jinja2_deploy_zabbix* provisions the 2nd Vagrant instance 'zabbix' by executing the ansible 'zabbix.yml' playbooks against that box.
