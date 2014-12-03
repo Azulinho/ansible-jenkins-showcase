@@ -251,6 +251,36 @@ env:
         - DSL_DEPLOY-job1
         - jinja2_deploy_job1
 
+      views:
+        list:
+          - { name: 'All',
+              description: 'All',
+              includeRegex: '.*',
+              columns: &all_columns_view [
+                'hudson.views.StatusColumn',
+                'hudson.views.WeatherColumn',
+                'hudson.views.JobColumn',
+                'hudson.views.LastSuccessColumn',
+                'hudson.views.LastFailureColumn',
+                'hudson.views.LastDurationColumn',
+                'hudson.views.BuildButtonColumn']}
+
+          - { name: 'DSL_BUILD',
+              description: 'All BUILD jobs built using the DSL',
+              includeRegex: 'DSL_BUILD.*',
+              columns: *all_columns_view }
+
+          - { name: 'DSL_DEPLOY',
+              description: 'All DEPLOY jobs built using the DSL',
+              includeRegex: 'DSL_DEPLOY.*',
+              columns: *all_columns_view }
+
+
+
+        pipeline:
+
+
+
     # zabbix settings
     zabbix:
       server:
