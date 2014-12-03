@@ -46,50 +46,32 @@
     </listView>
 {%          endfor %}
 {%      endif %}
+{%      if cfg.views.pipeline is defined %}
+{%          for pipeline in cfg.views.pipeline %}
     <au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView plugin="build-pipeline-plugin@1.4.5">
       <owner class="hudson" reference="../../.."/>
-      <name>PIPELINE1</name>
-      <filterExecutors>true</filterExecutors>
-      <filterQueue>true</filterQueue>
+      <name>{{ pipeline.name }}</name>
+      <filterExecutors>{{ pipeline.filterExecutors |default('true')}}</filterExecutors>
+      <filterQueue>{{ pipeline.filterExecutors |default('true') }}</filterQueue>
       <properties class="hudson.model.View$PropertyList"/>
-      <selectedJob>DSL_DEPLOY-job1</selectedJob>
+      <selectedJob>{{ pipeline.selectedJob }}</selectedJob>
       <gridBuilder class="au.com.centrumsystems.hudson.plugin.buildpipeline.DownstreamProjectGridBuilder">
-        <firstJob>DSL_DEPLOY-job1</firstJob>
+      <firstJob>{{ pipeline.firstJob }}</firstJob>
       </gridBuilder>
-      <noOfDisplayedBuilds>5</noOfDisplayedBuilds>
-      <buildViewTitle>Deployment Pipeline 1</buildViewTitle>
-      <consoleOutputLinkStyle>Lightbox</consoleOutputLinkStyle>
+      <noOfDisplayedBuilds>{{ pipeline.noOfDisplayedBuilds | default(5) }}</noOfDisplayedBuilds>
+      <buildViewTitle>{{ pipeline.buildViewTitle |default('') }}</buildViewTitle>
+      <consoleOutputLinkStyle>{{ pipeline.consoleOutputLinkStyle |default('Lightbox') }}</consoleOutputLinkStyle>
       <cssUrl></cssUrl>
-      <triggerOnlyLatestJob>false</triggerOnlyLatestJob>
-      <alwaysAllowManualTrigger>true</alwaysAllowManualTrigger>
-      <showPipelineParameters>true</showPipelineParameters>
-      <showPipelineParametersInHeaders>false</showPipelineParametersInHeaders>
-      <startsWithParameters>false</startsWithParameters>
-      <refreshFrequency>60</refreshFrequency>
-      <showPipelineDefinitionHeader>false</showPipelineDefinitionHeader>
+      <triggerOnlyLatestJob>{{ pipeline.triggerOnlyLatestJob | default('false')}}</triggerOnlyLatestJob>
+      <alwaysAllowManualTrigger>{{ pipeline.alwaysAllowManualTrigger |default('true') }}</alwaysAllowManualTrigger>
+      <showPipelineParameters>{{ pipeline.showPipelineParameters |default('true')}}</showPipelineParameters>
+      <showPipelineParametersInHeaders>{{ pipeline.showPipelineParametersInHeaders |default('false') }}</showPipelineParametersInHeaders>
+      <startsWithParameters>{{ pipeline.startsWithParameters |default('false') }}</startsWithParameters>
+      <refreshFrequency>{{ pipeline.refreshFrequency | default(60) }}</refreshFrequency>
+      <showPipelineDefinitionHeader>{{ pipeline.showPipelineDefinitionHeader |default('false')}}</showPipelineDefinitionHeader>
     </au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView>
-    <au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView plugin="build-pipeline-plugin@1.4.5">
-      <owner class="hudson" reference="../../.."/>
-      <name>PIPELINE2</name>
-      <filterExecutors>true</filterExecutors>
-      <filterQueue>true</filterQueue>
-      <properties class="hudson.model.View$PropertyList"/>
-      <selectedJob>jinja2_deploy_job1</selectedJob>
-      <gridBuilder class="au.com.centrumsystems.hudson.plugin.buildpipeline.DownstreamProjectGridBuilder">
-        <firstJob>jinja2_deploy_job1</firstJob>
-      </gridBuilder>
-      <noOfDisplayedBuilds>5</noOfDisplayedBuilds>
-      <buildViewTitle>Deployment Pipeline 2</buildViewTitle>
-      <consoleOutputLinkStyle>Lightbox</consoleOutputLinkStyle>
-      <cssUrl></cssUrl>
-      <triggerOnlyLatestJob>false</triggerOnlyLatestJob>
-      <alwaysAllowManualTrigger>true</alwaysAllowManualTrigger>
-      <showPipelineParameters>true</showPipelineParameters>
-      <showPipelineParametersInHeaders>false</showPipelineParametersInHeaders>
-      <startsWithParameters>false</startsWithParameters>
-      <refreshFrequency>60</refreshFrequency>
-      <showPipelineDefinitionHeader>false</showPipelineDefinitionHeader>
-  </au.com.centrumsystems.hudson.plugin.buildpipeline.BuildPipelineView>
+{%          endfor %}
+{%      endif %}
 {%  endif %}
   </views>
   <primaryView>All</primaryView>

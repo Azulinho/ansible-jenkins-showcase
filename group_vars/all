@@ -249,7 +249,7 @@ env:
       #
       pipeline_first_jobs:
         - DSL_DEPLOY-job1
-        - jinja2_deploy_job1
+        - jinja2_deploy_zabbix
 
       views:
         list:
@@ -276,8 +276,18 @@ env:
               columns: *all_columns_view }
 
 
-
         pipeline:
+          - { name: 'PIPELINE1',
+              selectedJob: 'DSL_DEPLOY-job1',
+              firstJob: 'DSL_DEPLOY-job1',
+              noOfDisplayedBuilds: '5',
+              buildViewTitle: 'Deployment Pipeline 1' }
+
+          - { name: 'PIPELINE2',
+              selectedJob: 'jinja2_deploy_zabbix',
+              firstJob: 'jinja2_deploy_zabbix',
+              noOfDisplayedBuilds: '5',
+              buildViewTitle: 'Zabbix Deployment Pipeline' }
 
 
 
