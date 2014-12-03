@@ -42,7 +42,7 @@
     - zabbix-server
 
 - name: update zabbix admin password
-  shell: mysql -uroot -hlocalhost zabbix -e "UPDATE users SET passwd=md5('{{ zabbix.zabbix_password }}') WHERE alias='Admin';"
+  shell: mysql -uroot -hlocalhost zabbix -e "UPDATE users SET passwd=md5('{{ zabbix.password }}') WHERE alias='Admin';"
   tags:
     - zabbix
     - zabbix-server
