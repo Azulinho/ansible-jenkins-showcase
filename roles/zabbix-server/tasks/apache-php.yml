@@ -121,13 +121,13 @@
 # we set a flag file in /var/tmp to validate if this is the
 # first time we execute this playbook.
 #
-- name: task_description
+- name: set flag for apache-php
   stat: path=/var/tmp/flag_zabbix-server-apache-php_end_of_first_run
-  register: result
+  register: _apache_php_end_of_first_run
 
 - name: enable and start Apache
   service: name=httpd state=restarted enabled=yes
-  when: result.stat.exists == false
+  when: _apache_php_end_of_first_run.stat.exists == false
   tags:
     - zabbix
     - zabbix-server

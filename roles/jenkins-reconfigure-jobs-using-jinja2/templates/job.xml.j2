@@ -4,7 +4,7 @@
 {% from 'do_buildWrapper.j2' import do_buildWrapper with context %}
 {% from 'do_parameterizedtrigger.j2' import do_parameterizedtrigger with context %}
 {% from 'do_scm.j2' import do_scm with context %}
-{%- set job = env[inventory_file]['jenkins']['jobs'][item.key] -%}
+{%- set job = jobs[item.key] -%}
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>

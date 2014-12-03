@@ -6,10 +6,10 @@
 
 - name: Check for Jenkins GPG in rpmdb
   command: rpm -q {{ jenkins_key }}
-  register: keycheck
+  register: _jenkins_keycheck
   ignore_errors: true
 
 - name: Ensure Jenkins GPG key installed
   command: rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
-  when: keycheck|failed
+  when: _jenkins_keycheck|failed
 

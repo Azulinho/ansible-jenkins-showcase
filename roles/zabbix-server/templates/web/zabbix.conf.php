@@ -6,8 +6,8 @@ $DB["TYPE"] = 'MYSQL';
 $DB["SERVER"] = 'localhost';
 $DB["PORT"] = '0';
 $DB["DATABASE"] = 'zabbix';
-$DB["USER"] = '{{ zabbix_mysql_username }}';
-$DB["PASSWORD"] = '{{ zabbix_mysql_password }}';
+$DB["USER"] = '{{ zabbix.mysql_username }}';
+$DB["PASSWORD"] = '{{ zabbix.mysql_password }}';
 $DB["SCHEMA"]                   = '';
 
 $ZBX_SERVER = 'localhost';

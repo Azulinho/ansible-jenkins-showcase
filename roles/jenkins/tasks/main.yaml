@@ -28,14 +28,14 @@
   tags: ['jenkins', 'versionlock']
 
 - name: Ensure jenkins is installed
-  yum: name=jenkins-{{ env[inventory_file]['jenkins']['version']}}
+  yum: name=jenkins-{{ jenkins['version']}}
     enablerepo=epel
     state=present
-  register: jenkins_install
+  register: _jenkins_install
   tags: ['jenkins', 'versionlock']
 
 - name: lock jenkins
-  command: yum versionlock jenkins-{{env[inventory_file]['jenkins']['version']}}
+  command: yum versionlock jenkins-{{ jenkins['version'] }}
   tags: ['jenkins', 'versionlock']
 
 # configure jenkins to our liking
@@ -45,7 +45,7 @@
   when: port is defined
   lineinfile: dest=/etc/default/jenkins
     regexp=^HTTP_PORT=
-    line=HTTP_PORT={{env[inventory_file]['jenkins']['port']}}
+    line=HTTP_PORT={{ jenkins['port'] }}
   tags: ['jenkins']
 
 - name: Configure Jenkins Prefix
@@ -53,14 +53,14 @@
   when: prefix is defined
   lineinfile: dest=/etc/default/jenkins
     regexp=^PREFIX=
-    line=PREFIX={{env[inventory_file]['jenkins']['prefix']}}
+    line=PREFIX={{ jenkins['prefix'] }}
   tags: ['jenkins']
 
 - name: Configure Jenkins E-mail
   sudo: yes
   when: email is defined
   template: src=hudson.tasks.Mailer.xml.j2
-    dest={{env[inventory_file]['jenkins']['lib']}}/hudson.tasks.Mailer.xml
+    dest={{ jenkins['lib'] }}/hudson.tasks.Mailer.xml
     owner=jenkins
     group=jenkins
     mode=0644
@@ -78,22 +78,22 @@
 # # wish there was a jenkins-cli rpm package
 #
 - name: "{{ startup_delay_s | default(90) }}s delay while starting Jenkins"
-  wait_for: port={{env[inventory_file]['jenkins']['port']}}
+  wait_for: port={{ jenkins['port'] }}
     delay={{ startup_delay_s | default(90) }}
-  when: jenkins_install.changed
+  when: _jenkins_install.changed
   tags: ['jenkins']
 
 # Create Jenkins CLI destination directory
 - name: "Create Jenkins CLI destination directory"
-  file: path={{ env[inventory_file]['jenkins']['dest'] }}
+  file: path={{ jenkins['dest'] }}
     state=directory
   sudo: yes
   tags: ['jenkins', 'jenkinscli']
 
 # Get Jenkins CLI from localhost
 - name: Get Jenkins CLI
-  get_url: url=http://localhost:{{env[inventory_file]['jenkins']['port']}}/jnlpJars/jenkins-cli.jar
-    dest={{env[inventory_file]['jenkins']['cli_dest']}}
+  get_url: url=http://localhost:{{ jenkins['port'] }}/jnlpJars/jenkins-cli.jar
+    dest={{ jenkins['cli_dest'] }}
     mode=0440
   sudo: yes
   tags: ['jenkins', 'jenkinscli']

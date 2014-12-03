@@ -35,7 +35,7 @@
 #
 - name: gather list of seed jobs
   command: ls /etc/jenkins_seed_jobs/seeds/
-  register: seed_jobs
+  register: _seed_dsl_jobs
   tags:
     - jenkins_job_dsl
 
@@ -44,7 +44,7 @@
 - name: upload new job and ignore errors if it already exists
   command: 'curl -X POST "http://localhost:8080/createItem?name={{item}}" --data-binary "@/etc/jenkins_seed_jobs/seeds/{{item}}" -H "Content-Type: text/xml"'
   with_items:
-    - "{{ seed_jobs.stdout }}"
+    - "{{ _seed_dsl_jobs.stdout }}"
   tags:
     - jenkins_job_dsl
 
@@ -53,7 +53,7 @@
 - name: update jobs if they already exist
   command: 'curl -X POST "http://localhost:8080/job/{{item}}/config.xml" --data-binary "@/etc/jenkins_seed_jobs/seeds/{{item}}" -H "Content-Type: text/xml"'
   with_items:
-    - "{{ seed_jobs.stdout }}"
+    - "{{ _seed_dsl_jobs.stdout }}"
   tags:
     - jenkins_job_dsl
 
@@ -97,7 +97,7 @@
 - name: kick builds of seed jobs
   command: 'curl "http://localhost:8080/job/{{item}}/build"'
   with_items:
-    - "{{ seed_jobs.stdout }}"
+    - "{{ _seed_dsl_jobs.stdout }}"
   tags:
     - jenkins_job_dsl
 

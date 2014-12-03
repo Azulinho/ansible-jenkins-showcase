@@ -15,21 +15,21 @@
     src={{ item }}
   with_fileglob:
     - jobs_definitions/*
-  register: upload
+  register: _upload
 
 - name: gather list of jobs
   command: ls /etc/jenkins_jobs/definitions/
-  register: jobs
+  register: _jobs
 
 - name: test job definitions before updating
   command: su - jenkins -c "jenkins-jobs test /etc/jenkins_jobs/definitions/{{ item }}"
   with_items:
-    - "{{ jobs.stdout_lines }}"
-  when: upload.changed
+    - "{{ _jobs.stdout_lines }}"
+  when: _upload.changed
 
 - name: upload job definitions
   command: su - jenkins -c "jenkins-jobs update /etc/jenkins_jobs/definitions/{{item}}"
   with_items:
-    - "{{ jobs.stdout_lines }}"
-  when: upload.changed
+    - "{{ _jobs.stdout_lines }}"
+  when: _upload.changed
 

@@ -29,17 +29,17 @@
 #
 - name: is this the first time we setup zabbix?
   stat: path=/var/tmp/zabbix_first_boot_complete
-  register: zabbix_first_boot_complete
+  register: _zabbix_first_boot_complete
 
 - name: prepare zabbix database nodes
   command: "{{ item }}"
   with_items:
     - service httpd stop
     - service zabbix-server stop
-    - zabbix_server -n {{zabbix_nodeid}}
+    - zabbix_server -n {{zabbix.zabbix_nodeid}}
     - service zabbix-server start
     - service httpd start
-  when: zabbix_first_boot_complete.stat.exists == False
+  when: _zabbix_first_boot_complete.stat.exists == False
 
 # Then make sure zabbix server is running
 #

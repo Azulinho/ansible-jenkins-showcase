@@ -6,7 +6,7 @@
     mode=0775
     owner=jenkins
     group=jenkins
-  with_dict: env[inventory_file]['jenkins']['jobs']
+  with_dict: jobs
   tags:
     - deploy_jenkins_xml
     - jenkins-reconfigure-jobs-using-jinja2
@@ -17,28 +17,28 @@
     mode=0775
     owner=jenkins
     group=jenkins
-  with_dict: env[inventory_file]['jenkins']['jobs']
+  with_dict: jobs
   tags:
     - deploy_jenkins_xml
     - jenkins-reconfigure-jobs-using-jinja2
 
 - name: gather list of seed jobs
   shell: ls /var/lib/jenkins/jobs/
-  register: seed_jobs
+  register: _seed_jinja2_jobs
   tags:
     - deploy_jenkins_xml
     - jenkins-reconfigure-jobs-using-jinja2
 
 - name: upload new job and ignore errors if it already exists
   command: 'curl -X POST "http://localhost:8080/createItem?name={{item}}" --data-binary "@/var/lib/jenkins/jobs/{{item}}/config.xml" -H "Content-Type: text/xml"'
-  with_items: "{{ seed_jobs.stdout_lines }}"
+  with_items: "{{ _seed_jinja2_jobs.stdout_lines }}"
   tags:
     - deploy_jenkins_xml
     - jenkins-reconfigure-jobs-using-jinja2
 
 - name: update jobs if they already exist
   command: 'curl -X POST "http://localhost:8080/job/{{item}}/config.xml" --data-binary "@/var/lib/jenkins/jobs/{{item}}/config.xml" -H "Content-Type: text/xml"'
-  with_items: "{{ seed_jobs.stdout_lines }}"
+  with_items: "{{ _seed_jinja2_jobs.stdout_lines }}"
   tags:
     - deploy_jenkins_xml
     - jenkins-reconfigure-jobs-using-jinja2
