@@ -62,7 +62,7 @@ env:
 
     # jenkins configuration settings
     jenkins:
-      version: 1.568-1.1
+      version: 1.592-1.1
       dest: /opt/jenkins
       lib: /var/lib/jenkins
       port: 8080
@@ -208,6 +208,7 @@ env:
             publishers:
               - { type: 'parametrizedTrigger',
                   projects: ['jinja2_deploy_zabbix_checks'],
+                  parameters: ['<hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>'],
                   condition: 'success'}
 
           jinja2_deploy_zabbix_checks:
@@ -229,6 +230,7 @@ env:
             publishers:
               - { type: 'parametrizedTrigger',
                   projects: ['jinja2_run_zabbix_tests'],
+                  parameters: ['<hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>'],
                   condition: 'success'}
 
           jinja2_run_zabbix_tests:
