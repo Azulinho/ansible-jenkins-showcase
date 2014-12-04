@@ -61,7 +61,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.start_at_task = ENV['START_AT_TASK']
         end
 
-        ansible.verbose = 'vvv'
+        #ansible.verbose = 'vvv'
         ansible.sudo = true
         ansible.playbook = "vagrant-#{opts[:book]}.yml"
         ansible.inventory_path= 'vagrant'
