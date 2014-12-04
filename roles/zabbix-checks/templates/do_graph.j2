@@ -1,0 +1,36 @@
+{% macro do_graph(g)   %}
+        <graph>
+            <name>{{ g.name }}</name>
+            <width>{{ g.width }}</width>
+            <height>{{ g.height }}</height>
+            <yaxismin>{{ g.yaxismin |default(0.0000)}}</yaxismin>
+            <yaxismax>{{ g.yaxismax| default(100.0000)}}</yaxismax>
+            <show_work_period>{{ g.show_work_period|default(1)}}</show_work_period>
+            <show_triggers>{{g.show_triggers|default(1)}}</show_triggers>
+            <type>{{g.type|default(0)}}</type>
+            <show_legend>{{g.show_legend|default(1)}}</show_legend>
+            <show_3d>{{g.show_3d|default(0)}}</show_3d>
+            <percent_left>{{g.percent_left|default(0.0000)}}</percent_left>
+            <percent_right>{{g.percent_right|default(0.0000)}}</percent_right>
+            <ymin_type_1>{{g.ymin_type_1|default(0)}}</ymin_type_1>
+            <ymax_type_1>{{g.ymax_type_1|default(0)}}</ymax_type_1>
+            <ymin_item_1>{{g.ymin_item_1|default(0)}}</ymin_item_1>
+            <ymax_item_1>{{g.ymax_item_1|default(0)}}</ymax_item_1>
+            <graph_items>
+{%    for gi in g.graph_items                                               %}
+                <graph_item>
+                <sortorder>{{gi.sortorder|default(0)}}</sortorder>
+                <drawtype>{{gi.drawtype|default(0)}}</drawtype>
+                <color>{{gi.color|default(000000)}}</color>
+                <yaxisside>{{gi.yaxisside|default(0)}}</yaxisside>
+                <calc_fnc>{{gi.calc_fnc|default(2)}}</calc_fnc>
+                <type>{{gi.type|default(0)}}</type>
+                    <item>
+                    <host>{{gi.host}}</host>
+                    <key>{{gi.gikey}}</key>
+                    </item>
+                </graph_item>
+{%    endfor      %}
+            </graph_items>
+        </graph>
+{% endmacro %}

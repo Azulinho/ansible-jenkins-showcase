@@ -1,0 +1,71 @@
+{% from 'do_zabbix_item.j2' import do_zabbix_item with context %}
+{% from 'do_application.j2' import do_application  with context %}
+{% from 'do_trigger_prototype.j2' import do_trigger_prototype with context %}
+{% from 'do_discovery_rule.j2' import do_discovery_rule  with context %}
+{% from 'do_screen.j2' import do_screen  with context %}
+{% from 'do_trigger.j2' import do_trigger  with context %}
+{% from 'do_graph.j2' import do_graph  with context %}
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>2.0</version>
+    <date>2014-08-20T16:08:50Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+        <template>{{ item.key }}</template>
+        <name>{{ item.key }}</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+{% if item.value['applications'] is defined %}
+            <applications>
+{%           for app in item.value['applications']                           %}
+{{            do_application(app)                                           }}
+{%-          endfor                                                          %}
+            </applications>
+{% endif %}
+{% if item.value['zabbix_items'] is defined %}
+            <items>
+{%          for zbx_item in item.value['zabbix_items']                      %}
+{{            do_zabbix_item(zbx_item)                                      }}
+{%          endfor                                                          %}
+            </items>
+{% endif %}
+{% if item.value['discovery_rules'] is defined %}
+            <discovery_rules>
+{%          for discovery_rule in item.value['discovery_rules']             %}
+{{            do_discovery_rule(discovery_rule)                             }}
+{%          endfor                                                          %}
+            </discovery_rules>
+{% endif %}
+            <macros/>
+{% if item.value['screens'] is defined %}
+            <screens>
+{%          for screen in item.value['screens']                             %}
+{{            do_screen(screen)                                             }}
+{%          endfor                                                          %}
+            </screens>
+{% endif %}
+    </template>
+    </templates>
+{% if item.value['triggers'] is defined %}
+            <triggers>
+{%          for trigger in item.value['triggers']                             %}
+{{            do_trigger(trigger)                                             }}
+{%          endfor                                                          %}
+            </triggers>
+{% endif %}
+{% if item.value['graphs'] is defined %}
+            <graphs>
+{%          for graph in item.value['graphs']                             %}
+{{            do_graph(graph)                                             }}
+{%          endfor                                                          %}
+            </graphs>
+{% endif %}
+</zabbix_export>

@@ -1,0 +1,300 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
+DOCUMENTATION = '''
+---
+module: zabbix_host
+version_added: "0.0.2"
+short_description: Add or remove zabbix hosts
+description:
+    - Creates or Deletes Zabbix hosts
+options:
+    name:
+        required: true
+        description:
+            - Name of the host to manage.
+    url:
+        required: true
+        description:
+            - The full zabbix URL to the api
+            - http://zabbix/api_jsonrpc.php
+    username:
+        required: true
+        description:
+            - the zabbix admin username
+    password:
+        required: true
+        description:
+            - the zabbix admin password
+    ip:
+        required: true
+        description:
+            - the ip address of the box
+    dns:
+        required: true
+        description:
+            - the dns name
+    port:
+        required: false
+        description:
+            - the zabbix agent port, defaults to 10050
+    macaddress:
+        required: false
+        description:
+            - the mac address for the server
+    templates:
+        required: false
+        description:
+            - the list of templates to link to the host
+    state:
+        required: false
+        default: "present"
+        choices: [ present, absent ]
+        description:
+            - Whether the host should be present or not on the remote host.
+
+'''
+
+EXAMPLES = '''
+# Example:
+- name: Create Zabbix host
+  zabbix_host:
+     name=mygroup
+     url=http://zabbix_server/api_jsonrpc.php
+     username=zabbix_username
+     password=zabbix_password
+     ip=10.10.10.10
+     hostgroup="Test boxes"
+     dns=host.example.com
+     templates="template1, template2, ..."
+     state=present
+'''
+
+import glutabbix
+from glutabbix import *
+from pprint import pprint
+
+
+class Host(object):
+
+    def logme(self, text):
+        with open('/tmp/log', 'a') as out:
+            pprint(text, stream=out)
+
+    def __init__(self, module):
+        self.module = module
+        self.state = module.params['state']
+        self.name = module.params['name']
+        self.url = module.params['url']
+        self.dns = module.params['dns']
+        self.ip = module.params['ip']
+        self.port = module.params['port']
+        self.templates = module.params['templates']
+        self.hostgroup = module.params['hostgroup']
+        self.username = module.params['username']
+        self.password = module.params['password']
+        self.zabbix = Glutabbix(self.url, self.username, self.password)
+
+    def exists(self):
+        try:
+            if self.zabbix.get_host(self.name):
+                return True
+        except KeyError:
+            return False
+
+    def delete(self):
+        output = ''
+        err = ''
+        try:
+            hostid = self.zabbix.get_host(self.name)[0]['hostid']
+            output = self.zabbix.delete_host(hostid)
+            rc = 0
+            err = 0
+            return rc, output, err
+        except:
+            rc = 1
+            err = output
+            return rc, output, err
+
+    def create(self):
+        output = ''
+        err = ''
+        interfaces = [
+                      {"type": 1,
+                       "main": 1,
+                       "useip": 1,
+                       "ip": self.ip,
+                       "dns": self.dns,
+                       "port": self.port
+                      }
+                     ]
+        inventory = {}
+
+        templates = self.templates.split(',')
+        template_ids = []
+
+        try:
+            hostgroup_id = self.zabbix.get_hostgroup(
+                self.hostgroup)[0]['groupid']
+        except:
+            rc = 1
+            err = 'failed to get hostgroup id from zabbix server'
+            return rc, output, err
+
+        for template in templates:
+            try:
+                template_ids.append(self.zabbix.get_template(
+                                                template)[0]['templateid'])
+            except:
+                rc = 1
+                err = 'failed to get template id from zabbix server'
+                return rc, output, err
+
+        try:
+            output = self.zabbix.create_host(self.name,
+                                             interfaces,
+                                             hostgroup_id,
+                                             template_ids,
+                                             inventory)
+        except:
+            rc = 1
+            err = 'failed to create host on zabbix server'
+            return rc, output, err
+
+        rc = 0
+        err = 0
+        return rc, output, err
+
+    def update(self):
+        output = ''
+        err = ''
+        inventory = {}
+
+        templates = self.templates.split(',')
+        template_ids = []
+
+        try:
+            hostid = self.zabbix.get_host(self.name)[0]['hostid']
+        except:
+            rc = 1
+            err = 'failed to get hostid from zabbix server'
+            return rc, output, err
+
+        try:
+            hostgroup_id = self.zabbix.get_hostgroup(
+                self.hostgroup)[0]['groupid']
+        except:
+            rc = 1
+            err = 'failed to get hostgroup id from zabbix server'
+            return rc, output, err
+
+        for template in templates:
+            try:
+                template_ids.append(self.zabbix.get_template(
+                                                template)[0]['templateid'])
+            except:
+                rc = 1
+                err = 'failed to get template id from zabbix server'
+                return rc, output, err
+
+        try:
+            output = self.zabbix.update_host(hostid,
+                                             hostgroup_id,
+                                             template_ids,
+                                             inventory)
+        except:
+            rc = 1
+            err = 'failed to update host on zabbix server'
+            return rc, output, err
+
+        rc = 0
+        err = 0
+        return rc, output, err
+
+    def info(self):
+        if not self.exists():
+            return False
+        try:
+            info = list(self.zabbix.get_host(self.name))
+        except KeyError:
+            return False
+        return info
+
+# ===========================================
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            state=dict(
+                default='present',
+                choices=['present', 'absent'], type='str'),
+            url=dict(required=True, type='str'),
+            username=dict(required=True, type='str'),
+            password=dict(required=True, type='str'),
+            ip=dict(required=False, type='str'),
+            hostgroup=dict(required=False, type='str'),
+            dns=dict(required=False, type='str'),
+            port=dict(required=True, type='str'),
+            templates=dict(required=False, type='str'),
+            name=dict(required=True, type='str'),
+            host=dict(default=None, type='str'),
+        ),
+        supports_check_mode=False
+    )
+
+    host = Host(module)
+
+    rc, out, err = None, '', ''
+    result = {}
+    result['name'] = host.name
+    result['state'] = host.state
+
+    if host.state == 'absent':
+        if host.exists():
+            (rc, out, err) = host.delete()
+            if rc != 0:
+                module.fail_json(name=host.name, msg=err)
+    elif host.state == 'present':
+        if not host.exists():
+            (rc, out, err) = host.create()
+        if host.exists():
+            (rc, out, err) = host.update()
+        if rc is not None and rc != 0:
+            module.fail_json(name=host.name, msg=err)
+
+    if rc is None:
+        result['changed'] = False
+    else:
+        result['changed'] = True
+
+    if out:
+        result['stdout'] = out
+
+    if err:
+        result['stderr'] = err
+
+    if host.exists():
+        info = host.info()
+        result['host'] = info[0]
+
+    module.exit_json(**result)
+
+# import module snippets
+from ansible.module_utils.basic import *
+main()
