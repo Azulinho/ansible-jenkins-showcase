@@ -551,7 +551,7 @@ env:
             zabbix_items:
               - { name: 'jenkins_port_check', type: 0, xkey: 'net.tcp.listen[8080]', value_type: 3, applications: ['jenkins'] }
             triggers:
-              - { expression: '{jenkins:net.tcp.listen[8080].max(5m)}=0|({TRIGGER.VALUE}=1 &amp; {jenkins:net.tcp.listen[8080].min(5m)} &gt; 0)', name: 'jenkins service on {HOST.NAME}', status: 0, priority: 4, type: 0 }
+              - { expression: '{jenkins_service:net.tcp.listen[8080].max(5m)}=0|({TRIGGER.VALUE}=1 &amp; {jenkins_service:net.tcp.listen[8080].min(5m)} &gt; 0)', name: 'jenkins service on {HOST.NAME}', status: 0, priority: 4, type: 0 }
 
           mysql:
             applications: ['mysql']
