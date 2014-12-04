@@ -17,31 +17,10 @@
   when: _jenkins_updates.changed
   tags: ['jenkins', 'jenkins_plugins']
 
-- name: List plugins
+- name: Install plugins
   sudo: yes
-  shell: java -jar {{ jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} list-plugins | cut -f 1 -d ' '
-  when: jenkins['plugins'] is defined
-  register: _plugins_installed
-  tags: ['jenkins', 'jenkins_plugins']
-
-# Install/update Jenkins plugins
-- name: Install/update plugins
-  sudo: yes
-  command: java -jar {{ jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} install-plugin {{ item }}
-  when: _plugins_installed.changed and _plugins_installed.stdout.find('{{ item }}') == -1
+  command: java -jar {{ jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} install-plugin http://updates.jenkins-ci.org/download/plugins/{{ item.name }}/{{ item.version }}/{{ item.name }}.hpi
   with_items: jenkins['plugins']
-  tags: ['jenkins', 'jenkins_plugins']
-
-- name: List plugins to be updated
-  sudo: yes
-  shell: java -jar {{jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} list-plugins | grep ')$' | cut -f 1 -d ' ' | sed ':a;N;$!ba;s/\n/ /g'
-  register: _plugins_updates
-  tags: ['jenkins', 'jenkins_plugins']
-
-- name: Update plugins
-  sudo: yes
-  command: java -jar {{ jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} install-plugin {{ _plugins_updates.stdout }}
-  when: _plugins_updates.stdout != ''
   tags: ['jenkins', 'jenkins_plugins']
 
 - name: safe-restart jenkins
