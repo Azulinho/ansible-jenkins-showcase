@@ -207,10 +207,10 @@ env:
                   default: 'vagrant'} ]
             publishers:
               - { type: 'parametrizedTrigger',
-                  projects: ['jinja2_deploy_zabbix_items'],
+                  projects: ['jinja2_deploy_zabbix_checks'],
                   condition: 'success'}
 
-          jinja2_deploy_zabbix_items:
+          jinja2_deploy_zabbix_checkss:
             <<: *jinja2_run_ansible
             parameters: [
               <<: *limit,
@@ -221,7 +221,7 @@ env:
               { name: 'PLAYBOOK',
                   type: 'string',
                   description: 'Which playbook to execute',
-                  default: 'zabbix-items.yml'},
+                  default: 'zabbix-checks.yml'},
               { name: 'INVENTORY_FILE',
                   type: 'string',
                   description: 'Which Inventory File to use',
