@@ -107,142 +107,226 @@ env:
         - timestamper
 
       jobs:
+        jinja2:
 
-        jinja2_base_template:
-          options: &base_template_options { disabled: false,
-                                            concurrentbuild: false }
+          jinja2_base_template:
+            options: &base_template_options { disabled: false,
+                                              concurrentbuild: false }
 
-          buildWrappers: &base_template_wrappers
-            - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
-                                             timeoutMinutes: 60,
-                                             strategy: 'AbsoluteTimeOutStrategy',
-                                             failBuild: true,
-                                             writingDescription: false }
+            buildWrappers: &base_template_wrappers
+              - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
+                                               timeoutMinutes: 60,
+                                               strategy: 'AbsoluteTimeOutStrategy',
+                                               failBuild: true,
+                                               writingDescription: false }
 
-            - &TimeStamper_defaults { type: 'Timestamper',
-                                     options: none }
+              - &TimeStamper_defaults { type: 'Timestamper',
+                                       options: none }
 
-            - &AnsiColor_defaults { type: 'AnsiColor',
-                                   colorMapName: xterm }
+              - &AnsiColor_defaults { type: 'AnsiColor',
+                                     colorMapName: xterm }
 
-        jinja2_run_ansible: &jinja2_run_ansible
-          description: "Executes Ansible"
-          options: { disabled: false,
-                     blocks: [ 'downstream', 'upstream' ],
-                     concurrentbuild: true }
-          parameters: &jinja2_run_ansible_parameters
-            - &inventory_file { name: 'INVENTORY_FILE',
-                type: 'choice',
-                description: 'Which Inventory File to use',
-                choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
+          jinja2_run_ansible: &jinja2_run_ansible
+            description: "Executes Ansible"
+            options: { disabled: false,
+                       blocks: [ 'downstream', 'upstream' ],
+                       concurrentbuild: true }
+            parameters: &jinja2_run_ansible_parameters
+              - &inventory_file { name: 'INVENTORY_FILE',
+                  type: 'choice',
+                  description: 'Which Inventory File to use',
+                  choices: { type_string: ['vagrant', 'dev', 'qa', 'prd']}}
 
-            - &playbook { name: 'PLAYBOOK',
-                type: 'choice',
-                description: 'Which playbook to execute',
-                choices: { type_string: ['jenkins.yml', 'zabbix.yml', 'site.yml']}}
+              - &playbook { name: 'PLAYBOOK',
+                  type: 'choice',
+                  description: 'Which playbook to execute',
+                  choices: { type_string: ['jenkins.yml', 'zabbix.yml', 'site.yml']}}
 
-            - &limit { name: "LIMIT",
-                type: 'string',
-                description: "Ansible --limit",
-                default: "all" }
+              - &limit { name: "LIMIT",
+                  type: 'string',
+                  description: "Ansible --limit",
+                  default: "all" }
 
-            - &tags { name: "TAGS",
-                type: 'string',
-                description: "Ansible --tags",
-                default: "" }
+              - &tags { name: "TAGS",
+                  type: 'string',
+                  description: "Ansible --tags",
+                  default: "" }
 
-            - &start_at_task { name: "START_AT_TASK",
-                type: 'string',
-                description: "Ansible --start-at-task",
-                default: "" }
+              - &start_at_task { name: "START_AT_TASK",
+                  type: 'string',
+                  description: "Ansible --start-at-task",
+                  default: "" }
 
-            - &release { name: "RELEASE",
-                type: 'string',
-                description: "RELEASE number to use",
-                default: "latest" }
+              - &release { name: "RELEASE",
+                  type: 'string',
+                  description: "RELEASE number to use",
+                  default: "latest" }
 
-            - &vault { name: "VAULT",
-                type: 'password',
-                description: "Ansible Vault Password",
-                default: "" }
+              - &vault { name: "VAULT",
+                  type: 'password',
+                  description: "Ansible Vault Password",
+                  default: "" }
 
-          scm:
-            - { type: 'git',
-                url: 'https://github.com/Azulinho/ansible-jenkins-showcase.git',
-                branches: ['*/master'] }
+            scm:
+              - { type: 'git',
+                  url: 'https://github.com/Azulinho/ansible-jenkins-showcase.git',
+                  branches: ['*/master'] }
 
-          builders:
-            - { type: 'shell',
-                command_lines: [
-                  "#!/bin/bash",
-                  "export PATH=/usr/local/bin:$PATH",
-                  "export PYTHONUNBUFFERED=1",
-                  "echo $VAULT &gt; .vault",
-                  "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "export PATH=/usr/local/bin:$PATH",
+                    "export PYTHONUNBUFFERED=1",
+                    "echo $VAULT &gt; .vault",
+                    "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
-          buildWrappers: *base_template_wrappers
+            buildWrappers: *base_template_wrappers
 
-        jinja2_deploy_zabbix:
-          <<: *jinja2_run_ansible
-          parameters: [
-            <<: *limit,
-            <<: *tags,
-            <<: *start_at_task,
-            <<: *release,
-            <<: *vault,
-            { name: 'PLAYBOOK',
-                type: 'string',
-                description: 'Which playbook to execute',
-                default: 'zabbix.yml'},
-            { name: 'INVENTORY_FILE',
-                type: 'string',
-                description: 'Which Inventory File to use',
-                default: 'vagrant'} ]
+          jinja2_deploy_zabbix:
+            <<: *jinja2_run_ansible
+            parameters: [
+              <<: *limit,
+              <<: *tags,
+              <<: *start_at_task,
+              <<: *release,
+              <<: *vault,
+              { name: 'PLAYBOOK',
+                  type: 'string',
+                  description: 'Which playbook to execute',
+                  default: 'zabbix.yml'},
+              { name: 'INVENTORY_FILE',
+                  type: 'string',
+                  description: 'Which Inventory File to use',
+                  default: 'vagrant'} ]
 
 
-        jinja2_deploy_template:
-          options: &deploy_template_options { disabled: false,
-                                              blocks: [ 'downstream',
-                                                        'upstream' ],
-                                              concurrentbuild: true }
-          builders:
-            - { type: 'shell',
-                command_lines: [
-                  "#!/bin/bash",
-                  "echo $VAULT &gt; .vault",
-                  "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+          jinja2_deploy_template:
+            options: &deploy_template_options { disabled: false,
+                                                blocks: [ 'downstream',
+                                                          'upstream' ],
+                                                concurrentbuild: true }
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo $VAULT &gt; .vault",
+                    "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
-        jinja2_deploy_job1:
-          options: *deploy_template_options
-          parameters:
-            - { name: "PARAMETER1",
-                type: 'string',
-                description: "PARAMETER 1",
-                default: "all" }
-          builders:
-            - { type: 'shell',
-                command_lines: [
-                  "#!/bin/bash",
-                  "echo deploy_job1" ]}
-          buildWrappers: *base_template_wrappers
-          publishers:
-            - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+          jinja2_deploy_job1:
+            options: *deploy_template_options
+            parameters:
+              - { name: "PARAMETER1",
+                  type: 'string',
+                  description: "PARAMETER 1",
+                  default: "all" }
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo deploy_job1" ]}
+            buildWrappers: *base_template_wrappers
+            publishers:
+              - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
 
-        jinja2_deploy_job2:
-          options: *deploy_template_options
-          builders:
-            - { type: 'shell',
-                command_lines: [
-                  "#!/bin/bash",
-                  "echo deploy_job2" ]}
-          buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
-          publishers:
-            - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+          jinja2_deploy_job2:
+            options: *deploy_template_options
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo deploy_job2" ]}
+            buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
+            publishers:
+              - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
 
-        jinja2_deploy_job3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
-        jinja2_deploy_job4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
-        jinja2_deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
-        jinja2_deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
+          jinja2_deploy_job3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
+          jinja2_deploy_job4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
+          jinja2_deploy_job5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
+          jinja2_deploy_job6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
+
+        job_builder:
+          - job:
+              name: job-builder_flow1
+              project_type: job-builder_flow
+              dsl: |
+                build("job-builder_job1")
+                parallel (
+                  { build("job-builder_job2a") },
+                  { build("job-builder_job2b") },
+                )
+                build("job-builder_job3")
+
+          - job:
+              name: job_builder-job1
+              project-type: freestyle
+              defaults: global
+              disabled: false
+              display-name: 'job_builder-job1'
+              concurrent: true
+              quiet-period: 5
+              block-downstream: false
+              block-upstream: false
+              retry-count: 3
+
+          - job:
+              name: job-builder_job2a
+
+          - job:
+              name: job-builder_job2b
+
+          - job:
+              name: job-builder_seed1
+              project-type: freestyle
+              defaults: global
+              disabled: false
+              display-name: 'job-builder_seed1'
+              concurrent: true
+              quiet-period: 5
+              block-downstream: false
+              block-upstream: false
+              retry-count: 3
+
+
+
+        views:
+          list:
+            - { name: 'All',
+                description: 'All',
+                includeRegex: '.*',
+                columns: &all_columns_view [
+                  'hudson.views.StatusColumn',
+                  'hudson.views.WeatherColumn',
+                  'hudson.views.JobColumn',
+                  'hudson.views.LastSuccessColumn',
+                  'hudson.views.LastFailureColumn',
+                  'hudson.views.LastDurationColumn',
+                  'hudson.views.BuildButtonColumn']}
+
+            - { name: 'DSL_BUILD',
+                description: 'All BUILD jobs built using the DSL',
+                includeRegex: 'DSL_BUILD.*',
+                columns: *all_columns_view }
+
+            - { name: 'DSL_DEPLOY',
+                description: 'All DEPLOY jobs built using the DSL',
+                includeRegex: 'DSL_DEPLOY.*',
+                columns: *all_columns_view }
+
+
+          pipeline:
+            - { name: 'PIPELINE1',
+                selectedJob: 'DSL_DEPLOY-job1',
+                firstJob: 'DSL_DEPLOY-job1',
+                noOfDisplayedBuilds: '5',
+                buildViewTitle: 'Deployment Pipeline 1' }
+
+            - { name: 'PIPELINE2',
+                selectedJob: 'jinja2_deploy_zabbix',
+                firstJob: 'jinja2_deploy_zabbix',
+                noOfDisplayedBuilds: '5',
+                startsWithParameters: true,
+                buildViewTitle: 'Zabbix Deployment Pipeline' }
 
       # here we set the first jobs in the pipeline,
       # this will be used by the kick-pipeline role
@@ -250,47 +334,6 @@ env:
       pipeline_first_jobs:
         - DSL_DEPLOY-job1
         - jinja2_deploy_zabbix
-
-      views:
-        list:
-          - { name: 'All',
-              description: 'All',
-              includeRegex: '.*',
-              columns: &all_columns_view [
-                'hudson.views.StatusColumn',
-                'hudson.views.WeatherColumn',
-                'hudson.views.JobColumn',
-                'hudson.views.LastSuccessColumn',
-                'hudson.views.LastFailureColumn',
-                'hudson.views.LastDurationColumn',
-                'hudson.views.BuildButtonColumn']}
-
-          - { name: 'DSL_BUILD',
-              description: 'All BUILD jobs built using the DSL',
-              includeRegex: 'DSL_BUILD.*',
-              columns: *all_columns_view }
-
-          - { name: 'DSL_DEPLOY',
-              description: 'All DEPLOY jobs built using the DSL',
-              includeRegex: 'DSL_DEPLOY.*',
-              columns: *all_columns_view }
-
-
-        pipeline:
-          - { name: 'PIPELINE1',
-              selectedJob: 'DSL_DEPLOY-job1',
-              firstJob: 'DSL_DEPLOY-job1',
-              noOfDisplayedBuilds: '5',
-              buildViewTitle: 'Deployment Pipeline 1' }
-
-          - { name: 'PIPELINE2',
-              selectedJob: 'jinja2_deploy_zabbix',
-              firstJob: 'jinja2_deploy_zabbix',
-              noOfDisplayedBuilds: '5',
-              startsWithParameters: true,
-              buildViewTitle: 'Zabbix Deployment Pipeline' }
-
-
 
     # zabbix settings
     zabbix:

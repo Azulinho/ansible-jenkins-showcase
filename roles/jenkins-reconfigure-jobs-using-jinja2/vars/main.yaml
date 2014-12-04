@@ -1,1 +1,1 @@
-jobs: "{{ env[inventory_file]['jenkins']['jobs'] }}"
+jobs: "{{ env[inventory_file]['jenkins']['jobs']['jinja2'] }}"
