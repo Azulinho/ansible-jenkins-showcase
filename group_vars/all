@@ -210,7 +210,7 @@ env:
                   projects: ['jinja2_deploy_zabbix_checks'],
                   condition: 'success'}
 
-          jinja2_deploy_zabbix_checkss:
+          jinja2_deploy_zabbix_checks:
             <<: *jinja2_run_ansible
             parameters: [
               <<: *limit,
