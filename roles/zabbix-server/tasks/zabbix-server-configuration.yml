@@ -36,7 +36,7 @@
   with_items:
     - service httpd stop
     - service zabbix-server stop
-    - zabbix_server -n {{zabbix.zabbix_nodeid}}
+    - zabbix_server -n {{zabbix.nodeid}}
     - service zabbix-server start
     - service httpd start
   when: _zabbix_first_boot_complete.stat.exists == False
