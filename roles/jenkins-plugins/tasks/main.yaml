@@ -26,10 +26,8 @@
 - name: safe-restart jenkins
   sudo: yes
   command: java -jar {{ jenkins['cli_dest'] }} -s http://localhost:{{ jenkins['port'] }} safe-restart
-  when: _plugins_updates.stdout != '' or _plugins_installed.changed
   tags: ['jenkins', 'jenkins_plugins']
 
 - name: wait for jenkins to restart, it can take forever
   command: sleep 180
-  when: _plugins_updates.stdout != ''
   tags: ['jenkins', 'jenkins_plugins']
