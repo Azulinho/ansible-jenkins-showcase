@@ -12,3 +12,4 @@
     - mysql-server
     - zabbix-server
     - deploy-authorized-keys
+    - zabbix-agent

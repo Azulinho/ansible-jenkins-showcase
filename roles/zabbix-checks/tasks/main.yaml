@@ -1,0 +1,170 @@
+---
+# Ansible Role: zabbix-checks
+#
+# Uploads XML templates to the Zabbix Server
+# Creates HostGroups for the host being executed by ansible
+# Creates the Host in Zabbix and links templates to that host
+#
+# Each HostGroup matches the Ansible inventory group name:
+# example:'zabbix_servers'.
+#
+# Configuration:
+#
+# in group_vars/all there is a dict 'zabbix' containing the templates
+# to be applied to each hostgroup.
+#
+# in group_vars/all there is a dict 'zabbix_xml' that contains the definitions
+# used to assemble all the items, triggers for a particular zabbix template.
+# The templates are built using jinja2 templating
+#
+# Follow these steps to deploy new zabbix templates:
+#
+# - Edit the definitions in group_vars/all 'zabbix_alerts' for the new template
+# - Edit the 'zabbix' dict in group_vars/all and map the particular template
+# to the hostgroup.
+#
+- name: set templates variable to prevent undefined errors
+  command: echo 1
+  register: templates
+  tags: ['zabbix-checks']
+
+# pip leaves old build directories behind, and won't update the python
+# modules correctly if these are left behind
+#
+- name: remove old pip build directories
+  command: rm -rf /tmp/pip-build-root/
+  tags: ['zabbix-checks']
+
+# glutabbix is used by the ansible zabbix modules kept in /library
+#
+- name: install python glutabbix
+  pip: name=glutabbix
+    executable=/usr/local/bin/pip2.7
+    state=present
+    version=0.0.10
+  tags: ['zabbix-checks']
+
+# we deploy new zabbix items using the API, they are imported into zabbix.
+# The api consumes an XML document containing 'triggers, items, graphs'
+#
+# we generate those XML objects from a dictionary in group_vars/all
+# and deploy them into /etc/zabbix/templates
+#
+- name: create /etc/zabbix/templates
+  file: path={{ item }}
+    state=directory
+    mode=0700
+    owner=zabbix
+    group=zabbix
+  with_items:
+    - /etc/zabbix/templates
+  tags: ['zabbix-checks']
+
+  # we grab the XML definitions from a dictionary: zabbix_xml_templates
+  # and upload it to /etc/zabbix/templates on the zabbix_server
+  #
+  # The zabbix code below when creating/updating a host,
+  # will link a template to a host, if the template doesn't exist the playbook
+  # will fail.
+- name: Build zabbix template files from dictionary zabbix_xml_templates
+  template:
+    src=template.xml.j2
+    dest="/etc/zabbix/templates/{{ item.key }}.xml"
+  with_dict: checks.xml_templates
+  register: templates
+  tags: ['zabbix-checks']
+
+# with the new zabbix templates uploded to /etc/zabbix/templates
+# we import them to the zabbix server, but only if they changed and the
+# zabbix_alerts_revision doesn't match what its in the box.
+#
+- name: Import Zabbix templates
+  zabbix_template:
+    name="{{ item.key }}"
+    url="http://localhost/zabbix/api_jsonrpc.php"
+    username={{server.username}}
+    password={{server.password}}
+    template_file="/etc/zabbix/templates/{{ item.key }}.xml"
+    state=present
+  when: templates.changed
+  with_dict: checks.xml_templates
+  tags: ['zabbix-checks']
+
+
+  # The zabbix hostgroups match the ansible group that the box belongs to
+  #
+- name: Create Zabbix HostGroup
+  zabbix_hostgroup:
+     name={{ item.key }}
+     url=http://localhost/zabbix/api_jsonrpc.php
+     username={{server.username}}
+     password={{server.password}}
+     state=present
+  with_dict: groups
+  tags: ['zabbix-checks']
+
+
+# generate a flat list of the boxes and which groups they belong to
+# zabbix_servers zbx1 ipaddress
+# zabbix_servers zbx2 ipaddress
+#
+# this will be consumed by the create zabbix host later on
+#
+
+- name: build flat list of hostgroup, host, ip
+  template: dest=/var/tmp/hostgroup_host_ip
+    src=hostgroup_host.j2
+  tags: ['zabbix-checks']
+
+- name: and register it back into a variable
+  shell: cat /var/tmp/hostgroup_host_ip
+  register: hostgroup_host
+  tags: ['zabbix-checks']
+
+# tricky one here, as per:
+# https://www.zabbix.com/forum/showthread.php?t=26252
+# updating a host (unlink, link template) with a changed template, leaves old
+# items, graphs, triggers behind which were associated with the old template.
+# this is tricky to manage, as if we leave the old items behind, the triggers
+# will be always firing as the apps monitored and associated with that template
+# are no longer present on the host.
+# Ideally, we'd want to get the list of templates to apply, compare it with the
+# templates linked to the host and validate trigger by trigger, item by item
+# between the updated template and the one currently linked to the host.
+# Then we'd have to remove the ones that don't exist in the new template.
+#
+# since this is a lot of effort, we take the (20%)/80% approach.
+# if we have a new revision_number, we delete the host and re-add it again.
+# this however has the downside of deleting the history.
+
+- name: Delete Zabbix Host
+  zabbix_host:
+     name={{ item.split(' ')[1] }}
+     url=http://localhost/zabbix/api_jsonrpc.php
+     username={{server.username}}
+     password={{server.password}}
+     port={{ server.client_port }}
+     state=absent
+  with_items: hostgroup_host.stdout_lines
+  tags: ['zabbix-checks']
+
+
+# associating Zabbix Templates to a host, happens during the Create Zabbix Host
+# phase, it uses the list of templates associated from a hostgroup (which
+# matches the type of ansible box 'jenkins_server' from the group_vars all.
+#
+- name: Create Zabbix Host
+  zabbix_host:
+     name={{ item.split(' ')[1] }}
+     url=http://localhost/zabbix/api_jsonrpc.php
+     username={{server.username}}
+     password={{server.password}}
+     hostgroup={{ item.split(' ')[0] }}
+     ip={{ item.split(' ')[2] }}
+     dns={{ item.split(' ')[1] }}
+     port={{ server.client_port }}
+     templates={{checks['host_groups']['all_servers']['templates']}},{{checks['host_groups'][ item.split(' ')[0]]['templates']}}
+     state=present
+  with_items: hostgroup_host.stdout_lines
+  tags: ['zabbix-checks']
+

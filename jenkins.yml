@@ -19,6 +19,9 @@
     # jenkins role installs jenkins
     - jenkins
 
+    # zabbix-agent install the zabbix-agent
+    - zabbix-agent
+
     # deploy SSH keys
     - deploy-ssh-keys
 

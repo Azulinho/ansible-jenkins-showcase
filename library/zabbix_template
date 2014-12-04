@@ -1,0 +1,205 @@
+#!/usr/bin/python2.7
+
+# -*- coding: utf-8 -*-
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
+DOCUMENTATION = '''
+---
+module: zabbix_template
+version_added: "0.0.2"
+short_description: Add or remove zabbix templates
+description:
+    - Creates or Deletes Zabbix templates
+options:
+    name:
+        required: true
+        description:
+            - Name of the template to manage.
+    url:
+        required: true
+        description:
+            - The full zabbix URL to the api
+            - http://zabbix/api_jsonrpc.php
+    username:
+        required: true
+        description:
+            - the zabbix admin username
+    password:
+        required: true
+        description:
+            - the zabbix admin password
+    template_file:
+        required: true
+        description:
+            - the xml file containing the template
+    state:
+        required: false
+        default: "present"
+        choices: [ present, absent ]
+        description:
+            - Whether the host should be present or not on the remote host.
+
+'''
+
+EXAMPLES = '''
+# Example:
+- name: Create Zabbix template
+  zabbix_template:
+     name=myTemplate
+     url=http://zabbix_server/api_jsonrpc.php
+     username=zabbix_username
+     password=zabbix_password
+     template_file="/etc/zabbix/templates/example.xml"
+     state=present
+'''
+
+from glutabbix import Glutabbix
+from pprint import pprint
+
+
+class Template(object):
+
+    def logme(self, text):
+        with open('/tmp/log', 'a') as out:
+            pprint(text, stream=out)
+
+    def __init__(self, module):
+        self.module = module
+        self.state = module.params['state']
+        self.name = module.params['name']
+        self.username = module.params['username']
+        self.password = module.params['password']
+        self.url = module.params['url']
+        self.json_string = module.params['json_string']
+        self.template_file = module.params['template_file']
+        self.zabbix = Glutabbix(self.url, self.username, self.password)
+
+    def exists(self):
+        try:
+            if self.zabbix.get_template(self.name):
+                return True
+        except KeyError:
+            return False
+
+    def delete(self):
+        output = ''
+        err = ''
+        try:
+            template_id = self.zabbix.get_template(self.name)[0]['templateid']
+            output = self.zabbix.delete_template(template_id)
+            rc = 0
+            err = 0
+            return rc, output, err
+        except:
+            rc = 1
+            err = output
+            return rc, output, err
+
+    def create(self):
+        output = ''
+        err = ''
+
+        try:
+            with open(self.template_file, "r") as myfile:
+                config = myfile.read().replace('\n', '')
+        except:
+            rc = 1
+            err = 'failed to read template file on zabbix server'
+            return rc, output, err
+
+        try:
+            output = self.zabbix.import_configuration(config)
+        except:
+            rc = 1
+            err = 'failed to import template on zabbix server'
+            return rc, output, err
+
+        rc = 0
+        err = 0
+        return rc, output, err
+
+
+    def info(self):
+        if not self.exists():
+            return False
+        try:
+            info = list(self.zabbix.get_template(self.name))
+        except KeyError:
+            return False
+        return info
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            state=dict(
+                default='present',
+                choices=['present', 'absent'], type='str'),
+            url=dict(required=True, type='str'),
+            username=dict(required=True, type='str'),
+            password=dict(required=True, type='str'),
+            json_string=dict(required=False, type='str'),
+            template_file=dict(required=False, type='str'),
+            name=dict(required=True, type='str'),
+        ),
+        supports_check_mode=False
+    )
+
+    template = Template(module)
+
+    rc, out, err = None, '', ''
+    result = {}
+    result['name'] = template.name
+    result['state'] = template.state
+
+    if template.state == 'absent':
+        if template.exists():
+            (rc, out, err) = template.delete()
+            if rc != 0:
+                module.fail_json(name=template.name, msg=err)
+    elif template.state == 'present':
+        if not template.exists():
+            (rc, out, err) = template.create()
+        else:
+            # delete the template before re-importing it again
+            # this because zabbix seems to duplicate items in the template
+            (rc, out, err) = template.delete()
+            (rc, out, err) = template.create()
+        if rc is not None and rc != 0:
+            module.fail_json(name=template.name, msg=err)
+
+    if rc is None:
+        result['changed'] = False
+    else:
+        result['changed'] = True
+
+    if out:
+        result['stdout'] = out
+
+    if err:
+        result['stderr'] = err
+
+    if template.exists():
+        info = template.info()
+        result['template'] = info[0]
+
+    module.exit_json(**result)
+
+# import module snippets
+from ansible.module_utils.basic import *
+
+main()

@@ -1,0 +1,16 @@
+---
+# Ansible wrapper for vagrant
+#
+#
+- hosts: all
+  max_fail_percentage: 1
+  serial: 1
+  accelerate: false
+  sudo: true
+  user: vagrant
+
+
+# Choose your desired profile to apply to this vagrant VM
+#
+  include:  zabbix-checks.yml
+

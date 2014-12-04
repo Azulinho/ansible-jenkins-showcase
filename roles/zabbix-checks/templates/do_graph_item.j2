@@ -1,0 +1,15 @@
+{% macro do_graph_item(_graph)   %}
+                                <graph_item>
+                                    <sortorder>{{_graph.sortorder|default(0)}}</sortorder>
+                                    <drawtype>{{_graph.drawtype|default(0)}}</drawtype>
+                                    <color>{{_graph.color|default(000000)}}</color>
+                                    <yaxisside>{{_graph.yaxisside|default(0)}}</yaxisside>
+                                    <calc_fnc>{{_graph.calc_fnc|default(2)}}</calc_fnc>
+                                    <type>{{_graph.type|default(2)}}</type>
+                                    <item>
+                                    <host>{{_graph.host|default('')}}</host>
+                                    <key>{{_graph.gkey|default('')}}</key>
+                                    </item>
+                                </graph_item>
+
+{% endmacro %}

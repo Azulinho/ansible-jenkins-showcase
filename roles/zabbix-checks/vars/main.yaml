@@ -1,0 +1,2 @@
+checks: "{{ env[inventory_file]['zabbix']['checks'] }}"
+server: "{{ env[inventory_file]['zabbix']['server'] }}"

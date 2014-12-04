@@ -1,0 +1,51 @@
+{% from 'do_item_prototype.j2' import do_item_prototype  with context %}
+{% from 'do_graph_prototype.j2' import do_graph_prototype  with context %}
+{% from 'do_trigger_prototype.j2' import do_trigger_prototype  with context %}
+{%  macro do_discovery_rule(x) %}
+                <discovery_rule>
+                    <name>{{ x.name|default('') }}</name>
+                    <type>{{ x.type |default(0)}}</type>
+                    <snmp_community/>
+                    <snmp_oid/>
+                    <key>{{ x.xkey|default('') }}</key>
+                    <delay>{{ x.delay | default(60)}}</delay>
+                    <status>{{ x.status|default(0)}}</status>
+                    <allowed_hosts/>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>{{ x.snmpv3_securitylevel| default(0)}}</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>{{ x.snmpv3_authprotocol|default(0)}}</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>{{x.snmpv3_privprotocol|default(0)}}</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <authtype>{{x.authtype|default(0)}}</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <filter>{{ x.filter | default('')}}</filter>
+                    <lifetime>{{ x.lifetime |default(30)}}</lifetime>
+                    <description>{{ x.description|default('')}}</description>
+                    <item_prototypes>
+{%    for y in x.item_prototypes %}
+{{       do_item_prototype(y)   }}
+{%    endfor %}
+                    </item_prototypes>
+                    {%    if x.triggers_prototypes|length >1  %}
+                    <trigger_prototypes>
+{%    for t in x.triggers_prototypes %}
+{{      do_trigger_prototype(t)      }}
+{%    endfor %}
+                    </trigger_prototypes>
+{%endif %}
+                    <graph_prototypes>
+{%  for g in x.graph_prototypes %}
+{{      do_graph_prototype(g)  }}
+{%  endfor %}
+                    </graph_prototypes>
+                </discovery_rule>
+{% endmacro %}

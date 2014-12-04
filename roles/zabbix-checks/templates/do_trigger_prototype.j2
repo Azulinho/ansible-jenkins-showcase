@@ -1,0 +1,11 @@
+{% macro do_trigger_prototype(t)    %}
+                        <trigger_prototype>
+                            <expression>{{ t.expression }}</expression>
+                            <name>{{ t.name}}</name>
+                            <url/>
+                            <status>{{ t.status|default(0)}}</status>
+                            <priority>{{ t.priority|default(0)}}</priority>
+                            <description/>
+                            <type>{{ t.type|default(0)}}</type>
+                        </trigger_prototype>
+{% endmacro %}
