@@ -6,7 +6,7 @@
     - zabbix-agent
 
 - name: install python zabbix api
-  command: pip install pyzabbix
+  command: /usr/local/bin/pip2.7 install pyzabbix
   tags:
     - zabbix-agent
 
