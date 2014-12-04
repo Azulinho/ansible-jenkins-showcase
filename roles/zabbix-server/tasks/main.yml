@@ -10,21 +10,6 @@
   tags:
     - zabbix
 
-- name: install zabbix agent
-  command: yum --disableplugin=fastestmirror install zabbix22-agent python-pip -y
-  tags:
-    - zabbix-agent
-    - zabbix
-
-- name: update config
-  template:
-    src=zabbix_agentd.conf
-    dest=/etc/zabbix_agentd.conf
-  notify: restart zabbix agent
-  tags:
-    - zabbix-agent
-    - zabbix
-
 # Install zabbix packages
 #
 - name: install zabbix 2.2 and web stuff
