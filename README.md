@@ -36,16 +36,19 @@ and then connect to http://jenkins:8080
 
 you should see a fully deployed, configured jenkins with two pipelines and a series of jobs.
 
-The second pipeline PIPELINE2 should be automatically initiated by an Ansible task, this pipeline executes a job *jinja2_deploy_zabbix* with provisions and configures a zabbix server using an Ansible playbook.
+The second pipeline PIPELINE2 should be automatically initiated by an Ansible task,
+this pipeline executes a job *jinja2_deploy_zabbix* with provisions and configures a zabbix server using an Ansible playbook.
 Upon completion the Zabbix server will be configured to monitor itself as well as the Jenkins box which provisioned the Zabbix Server.
 
 
 ![boxes_up](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part2.gif)
 
 
-This is an example of how Ansible can be used in an infrastructure as code environment, where all your deployment and configuration data resides in one of more GIT repositories, and the whole environment could be rebuilt from scratch at any time.
+This is an example of how Ansible can be used in an *infrastructure as code environment*,
+where all your deployment and configuration data resides in one of more GIT repositories, and the whole environment could be rebuilt from scratch at any time.
 
 
-The configuration for the different jenkins jobs, pipelines, views, as well as the complete zabbix setup (including the monitored items) are all set in group_vars/all at the root of this repository:
+The configuration for the different jenkins jobs, pipelines, views,
+as well as the complete zabbix setup (including the monitored items) are all set in group_vars/all at the root of this repository:
 
 ![configuration](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part0.gif)
