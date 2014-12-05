@@ -1,9 +1,9 @@
 
-vagrant_plugins = ['ansible',
-                   'vagrant-cachier',
-                   'vagrant-hostmanager',
-                   'vagrant-triggers',
-                   'vagrant-hostsupdater']
+vagrant_plugins = { 'ansible' => '0.2.0' ,
+                    'vagrant-cachier' => '1.1.0',
+                    'vagrant-hostmanager' => '1.5.0',
+                    'vagrant-triggers' => '0.4.3',
+                    'vagrant-hostsupdater' => '0.0.11'}
 
 task :default => ['setup', 'vagrant_up'] do
 
@@ -11,8 +11,8 @@ end
 
 desc "let me sort out all the goodies you may need"
 task :setup do
-  vagrant_plugins.each do |plugin|
-    system("vagrant plugin install #{ plugin }")
+  vagrant_plugins.each_pair do |name, version|
+    system("vagrant plugin install #{ name } --plugin-version #{ version }")
     end
 end
 
@@ -23,3 +23,4 @@ task :vagrant_up do
   end
   system("vagrant provision jenkins")
 end
+

@@ -438,9 +438,6 @@ env:
         # block builds the templates using jinja2 templating, which will than be
         # applied to a group of hosts based on the zabbix dictionary
         #
-        # note that changes to this dictionary also requires an update on the
-        # zabbix_alerts_revision flag variable in order for those changes to be deployed
-        # on the next ansible run.
         #
         #
         #
