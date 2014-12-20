@@ -8,38 +8,38 @@
 
   roles:
     # configure /etc/resolv.conf
-    - dns
+    - Azulinho.azulinho-google-dns
 
     # get the latest git, the version from RH is pretty rubbish
-    - git
+    - Azulinho.azulinho-git
 
     # jenkins will be the ansible control-host, so we install ansible on it
-    - ansible
+    - Azulinho.azulinho-ansible
 
     # jenkins role installs jenkins
-    - jenkins
-
-    # zabbix-agent install the zabbix-agent
-    - zabbix-agent
-
-    # deploy SSH keys
-    - deploy-ssh-keys
+    - Azulinho.azulinho-jenkins-server
 
       # jenkins-plugins role installs the jenkins-plugins
-    - jenkins-plugins
+    - Azulinho.azulinho-jenkins-plugins
+
+    # zabbix-agent install the zabbix-agent
+    - Azulinho.azulinho-zabbix-agent
+
+    # deploy SSH keys
+    - Azulinho.azulinho-ssh-keys
 
     # jenkins-job-builder installs the python based tool with the same name
-    - jenkins-job-builder
+    - Azulinho.azulinho-jenkins-job-builder
 
     # we then go about deploying a range of jenkins jobs using
     # the python tool jenkins-job-builder
-    - jenkins-reconfigure-jobs-using-job-builder
+    - Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-builder
 
     # deploy jobs using XML templating from jinja2
-    - jenkins-reconfigure-jobs-using-jinja2
+    - Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2
 
     # deploy jobs using the groovy DSL
-    - jenkins-reconfigure-jobs-using-job-dsl
+    - Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-dsl
 
     # execute the pipelines
-    - jenkins-kick-pipelines
+    - Azulinho.azulinho-jenkins-kick-pipelines

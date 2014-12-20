@@ -1,5 +1,0 @@
----
-
-dependencies:
-  - { role: yum-repo-rpmforge }
-

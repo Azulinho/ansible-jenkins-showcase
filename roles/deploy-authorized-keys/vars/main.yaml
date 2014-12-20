@@ -1,1 +1,0 @@
-authorized_keys: "{{ env[inventory_file]['ssh']['authorized_keys'] }}"

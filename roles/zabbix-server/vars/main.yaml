@@ -1,1 +1,0 @@
-zabbix: "{{ env[inventory_file]['zabbix']['server'] }}"

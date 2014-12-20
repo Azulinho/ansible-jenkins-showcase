@@ -1,5 +1,7 @@
 # vim: ft=yaml:foldmethod=indent:foldenable
 #
+#
+#
 env:
   default: &env_defaults
 
@@ -206,6 +208,7 @@ env:
                     "export PATH=/usr/local/bin:$PATH",
                     "export PYTHONUNBUFFERED=1",
                     "echo $VAULT &gt; .vault",
+                    "rake galaxy_install",
                     "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
             buildWrappers: *base_template_wrappers
@@ -403,15 +406,29 @@ env:
     # zabbix settings
     zabbix:
       server:
-        client_port : "10050"
-        nodeid : 99
-        server: zabbix
-        server_port : "10051"
+        #client_port : "10050"
+        #nodeid : 99
+        #server: zabbix
+        #server_port : "10051"
 
-        username : admin
-        password : password
+        #username : admin
+        #password : password
+        #mysql_username: zabbix
+        #mysql_password: password
+
+        nodeid: 999
+        zabbix_password: zabbix
+        zabbix_host: localhost
         mysql_username: zabbix
         mysql_password: password
+        mysql_port: 3306
+        mysql_start_pollers: 25
+        mysql_start_trappers: 25
+        server_port: 10051
+        dbname: zabbix
+        dbhost: localhost
+
+
 
       checks:
         # List of all the zabbix templates applied per hostgroup
@@ -601,4 +618,15 @@ env:
   qa: *env_defaults
   prd: *env_defaults
 
-
+# here we feed the roles
+#
+azulinho_jenkins_server: "{{ env[deploy_env]['jenkins'] }}"
+azulinho_jenkins_plugins: "{{ env[deploy_env]['jenkins'] }}"
+azulinho_jenkins_reconfigure_jobs_using_jinja2:
+  jobs: "{{ env[deploy_env]['jenkins']['jobs']['jinja2'] }}"
+azulinho_jenkins_reconfigure_jobs_using_job_builder: "{{ env[deploy_env]['jenkins']['jobs']['job_builder'] }}"
+azulinho_jenkins_kick_pipeline: "{{ env[deploy_env]['jenkins'] }}"
+azulinho_zabbix_server: "{{ env[deploy_env]['zabbix']['server'] }}"
+azulinho_zabbix_agent: "{{ env[deploy_env]['zabbix']['server'] }}"
+azulinho_zabbix_checks: "{{ env[deploy_env]['zabbix']['checks'] }}"
+azulinho_ssh_keys: "{{ env[deploy_env]['ssh']['ssh_keys'] }}"

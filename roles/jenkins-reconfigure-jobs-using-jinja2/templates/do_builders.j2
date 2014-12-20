@@ -1,8 +1,0 @@
-{% macro do_builders(builder) %}
-{%   if 'shell' in builder.type %}
-    <hudson.tasks.Shell>
-    <command>{% for line in builder.command_lines %}{{ line }}
-{%              endfor %}</command>
-    </hudson.tasks.Shell>
-{%   endif %}
-{% endmacro %}

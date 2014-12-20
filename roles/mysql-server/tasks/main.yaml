@@ -1,6 +1,0 @@
----
-- name: install mysql server
-  command: yum --disableplugin=fastestmirror install mysql mysql-server -y
-
-- name: start and enable mysqld
-  service: name=mysqld enabled=yes state=started

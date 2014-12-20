@@ -1,6 +1,0 @@
-{%  set hosts = env[inventory_file]['hosts']                        %}
-{%  for host in hosts                                                        %}
-{%          if host['hostgroup'] is defined                                       %}
-{{ host['hostgroup']}} {{ host['hostname'] }} {{  host['ip'] }}
-{%          endif                                                            %}
-{%  endfor                                                                   %}

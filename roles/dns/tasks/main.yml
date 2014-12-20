@@ -1,3 +1,0 @@
-- name: configure /etc/resolv.conf
-  copy: dest=/etc/resolv.conf
-    src=resolv.conf

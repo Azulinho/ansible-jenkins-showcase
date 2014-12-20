@@ -6,10 +6,10 @@
   sudo: true
 
   roles:
-    - dns
-    - python-pip
-    - apache
-    - mysql-server
-    - zabbix-server
-    - deploy-authorized-keys
-    - zabbix-agent
+    - Azulinho.azulinho-google-dns
+    - Azulinho.azulinho-python-pip
+    - Azulinho.azulinho-apache
+    - Azulinho.azulinho-mysql-server
+    - Azulinho.azulinho-zabbix-server
+    - Azulinho.azulinho-ssh-keys
+    - Azulinho.azulinho-zabbix-agent

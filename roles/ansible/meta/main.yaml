@@ -1,6 +1,0 @@
----
-
-dependencies:
-  - { role: devel-packages }
-  - { role: python27 }
-

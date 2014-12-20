@@ -1,8 +1,0 @@
-
-# goddamn you RH, all your packages from the flinstones era
-# grab the latest git from rpmforge-extras
-# that repo is disabled by default
-- name: Ensure latest git is installed
-  shell: yum --disablerepo=base,updates --enablerepo=rpmforge-extras update git -y
-  tags:
-    - latest-git

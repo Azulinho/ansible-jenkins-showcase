@@ -1,4 +1,0 @@
----
-
-- name: install Centos Linux Software Collections
-  yum: name=centos-release-SCL state=present

@@ -1,5 +1,0 @@
-
-- name: install python jenkins-job-builder
-  pip: name=jenkins-job-builder
-    executable=/usr/local/bin/pip2.7
-    state=present

@@ -1,1 +1,0 @@
-pipeline_first_jobs: "{{ env[inventory_file]['jenkins']['pipeline_first_jobs']  }}"

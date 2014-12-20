@@ -6,4 +6,4 @@
   sudo: true
 
   roles:
-    - zabbix-checks
+    - Azulinho.azulinho-zabbix-checks
