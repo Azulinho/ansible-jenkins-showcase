@@ -9,6 +9,7 @@ ansible_roles = [
   'Azulinho.azulinho-ansible',
   'Azulinho.azulinho-apache',
   'Azulinho.azulinho-google-dns',
+  'Azulinho.azulinho-git',
   'Azulinho.azulinho-jenkins-kick-pipelines',
   'Azulinho.azulinho-jenkins-plugins',
   'Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2',
