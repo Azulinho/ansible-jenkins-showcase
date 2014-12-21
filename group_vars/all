@@ -171,6 +171,68 @@ env:
         #
         jinja2:
 
+
+          jinja2_base_template:
+            options: &base_template_options { disabled: false,
+                                              concurrentbuild: false }
+
+            buildWrappers: &base_template_wrappers
+              - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
+                                               timeoutMinutes: 60,
+                                               strategy: 'AbsoluteTimeOutStrategy',
+                                               failBuild: true,
+                                               writingDescription: false }
+
+              - &TimeStamper_defaults { type: 'Timestamper',
+                                       options: none }
+
+              - &AnsiColor_defaults { type: 'AnsiColor',
+                                     colorMapName: xterm }
+
+          jinja2_deploy_template:
+            options: &deploy_template_options { disabled: false,
+                                                blocks: [ 'downstream',
+                                                          'upstream' ],
+                                                concurrentbuild: true }
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo $VAULT &gt; .vault",
+                    "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+
+          jinja2_example1:
+            options: *deploy_template_options
+            parameters:
+              - { name: "PARAMETER1",
+                  type: 'string',
+                  description: "PARAMETER 1",
+                  default: "all" }
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo deploy_job1" ]}
+            buildWrappers: *base_template_wrappers
+            publishers:
+              - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+
+          jinja2_example2:
+            options: *deploy_template_options
+            builders:
+              - { type: 'shell',
+                  command_lines: [
+                    "#!/bin/bash",
+                    "echo deploy_job2" ]}
+            buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
+            publishers:
+              - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+
+          jinja2_example3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
+          jinja2_example4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
+          jinja2_example5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
+          jinja2_example6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
+
           # jinja2_run_ansible, is the base template job for executing
           # ansible playbooks on other hosts.
           # it can be executed directly from the jenkins interface, by selecting
@@ -292,66 +354,6 @@ env:
             options: *base_template_options
             buildWrappers: *base_template_wrappers
 
-          jinja2_base_template:
-            options: &base_template_options { disabled: false,
-                                              concurrentbuild: false }
-
-            buildWrappers: &base_template_wrappers
-              - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
-                                               timeoutMinutes: 60,
-                                               strategy: 'AbsoluteTimeOutStrategy',
-                                               failBuild: true,
-                                               writingDescription: false }
-
-              - &TimeStamper_defaults { type: 'Timestamper',
-                                       options: none }
-
-              - &AnsiColor_defaults { type: 'AnsiColor',
-                                     colorMapName: xterm }
-
-          jinja2_deploy_template:
-            options: &deploy_template_options { disabled: false,
-                                                blocks: [ 'downstream',
-                                                          'upstream' ],
-                                                concurrentbuild: true }
-            builders:
-              - { type: 'shell',
-                  command_lines: [
-                    "#!/bin/bash",
-                    "echo $VAULT &gt; .vault",
-                    "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
-
-          jinja2_example1:
-            options: *deploy_template_options
-            parameters:
-              - { name: "PARAMETER1",
-                  type: 'string',
-                  description: "PARAMETER 1",
-                  default: "all" }
-            builders:
-              - { type: 'shell',
-                  command_lines: [
-                    "#!/bin/bash",
-                    "echo deploy_job1" ]}
-            buildWrappers: *base_template_wrappers
-            publishers:
-              - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
-
-          jinja2_example2:
-            options: *deploy_template_options
-            builders:
-              - { type: 'shell',
-                  command_lines: [
-                    "#!/bin/bash",
-                    "echo deploy_job2" ]}
-            buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
-            publishers:
-              - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
-
-          jinja2_example3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
-          jinja2_example4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
-          jinja2_example5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
-          jinja2_example6: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job6" ]} ], buildWrappers: *base_template_wrappers }
 
         job_builder:
           - job:
