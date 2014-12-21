@@ -19,6 +19,8 @@ ansible_roles = [
   'Azulinho.azulinho-mysql-server',
   'Azulinho.azulinho-python27',
   'Azulinho.azulinho-ssh-keys',
+  'joshualund.ruby-2_1',
+  'joshualund.ruby-common',
   'Azulinho.azulinho-zabbix-agent',
   'Azulinho.azulinho-zabbix-checks',
   'Azulinho.azulinho-zabbix-server',

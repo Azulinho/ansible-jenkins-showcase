@@ -41,5 +41,8 @@
     # deploy jobs using the groovy DSL
     - Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-dsl
 
+    # we need ruby installed before we go
+    - joshualund.ruby-2_1
+
     # execute the pipelines
     - Azulinho.azulinho-jenkins-kick-pipelines

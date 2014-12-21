@@ -208,7 +208,8 @@ env:
                     "export PATH=/usr/local/bin:$PATH",
                     "export PYTHONUNBUFFERED=1",
                     "echo $VAULT &gt; .vault",
-                    "rake galaxy_install",
+                    "bundle install",
+                    "bundle exec rake galaxy_install",
                     "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
             buildWrappers: *base_template_wrappers
