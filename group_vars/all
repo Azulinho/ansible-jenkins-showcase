@@ -55,7 +55,6 @@ env:
             ]
           }
 
-      authorized_keys:
         - { hostgroup: 'zabbix_servers',
             owner: 'root',
             path: '/root/.ssh/authorized_keys',
