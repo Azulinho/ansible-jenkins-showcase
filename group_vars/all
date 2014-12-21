@@ -1,8 +1,19 @@
 # vim: ft=yaml:foldmethod=indent:foldenable
 #
 #
+# the 'env' root, it the base for the config of our infrastructure.
+# Below the root 'env', we have a set of 'environments' (vagrant, dev, qa, prod)
+# each with a specific set of parameters.
 #
 env:
+
+  # in order to keep the settings DRY, we define an environment called 'default'
+  # containing all the settings that will eventually be applied to all
+  # environments.
+  # Then in each 'environment' block, we override, rewrite, append additional
+  # key:values as required.
+  # YAML anchors/aliases are quite useful here, as they allow manipulation of
+  # inner dictionary structures with some flexibility.
   default: &env_defaults
 
     # the ssh block contains the private, public and authorized_keys
@@ -13,6 +24,10 @@ env:
     # we'll just stick them in clear text in here.
     ssh:
       ssh_keys:
+        # the Azulinho.azulinho-ssh.keys role will check the hostgroup name
+        # and if it matches an entry in this dictionary, then it will deploy
+        # the ssh key pairs from this file.
+        #
         - { hostgroup: 'jenkins_servers',
             owner: 'jenkins',
             path: '/var/lib/jenkins/.ssh/id_rsa',
@@ -61,7 +76,10 @@ env:
             contents: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key"
           }
 
-    # jenkins configuration settings
+    # the jenkins block, contains the full set of configs for the jenkins box
+    # including: jenkins version, installing plugins, defined views, jobs to
+    # configure, pipelines to build, and jobs to be automatically built at
+    # the end of the playbook
     jenkins:
       version: 1.592-1.1
       dest: /opt/jenkins
@@ -134,26 +152,33 @@ env:
         { name: 'job-log-logger-plugin', version: '1.0'},
         { name: 'translation', version: '1.12'} ]
 
+      # the jenkins/jobs block defines all the jobs that will be configured
+      # in jenkins. There are two main structures here that can be used to
+      # define jobs. 'jinja2' and 'job_builder'
+      #
+      # jobs defined under the 'jinja2' block will be configured using xml
+      # templating from jinja2.
+      # the role Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2 takes
+      # care of deploying those jobs. Its fairly easy to extend allowing it to
+      # support pretty much any value in the jenkins job XML.
+      #
+      # jobs defined under the 'job_builder' block will be configured using
+      # the python tool jenkins-job-builder, the YAML configuration here
+      # matches what is supported by that tool.
+      #
       jobs:
+        # list of jobs defined in jinja2
+        #
         jinja2:
 
-          jinja2_base_template:
-            options: &base_template_options { disabled: false,
-                                              concurrentbuild: false }
-
-            buildWrappers: &base_template_wrappers
-              - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
-                                               timeoutMinutes: 60,
-                                               strategy: 'AbsoluteTimeOutStrategy',
-                                               failBuild: true,
-                                               writingDescription: false }
-
-              - &TimeStamper_defaults { type: 'Timestamper',
-                                       options: none }
-
-              - &AnsiColor_defaults { type: 'AnsiColor',
-                                     colorMapName: xterm }
-
+          # jinja2_run_ansible, is the base template job for executing
+          # ansible playbooks on other hosts.
+          # it can be executed directly from the jenkins interface, by selecting
+          # the playbook to execute, and the rest of options to give to ansible.
+          #
+          # in this setup, this base template will also be used to generate a
+          # list of other jobs from that common base of parameters.
+          #
           jinja2_run_ansible: &jinja2_run_ansible
             description: "Executes Ansible"
             options: { disabled: false,
@@ -266,6 +291,23 @@ env:
                     "echo SUCESS" ]}
             options: *base_template_options
             buildWrappers: *base_template_wrappers
+
+          jinja2_base_template:
+            options: &base_template_options { disabled: false,
+                                              concurrentbuild: false }
+
+            buildWrappers: &base_template_wrappers
+              - &BuildTimeOutWrapper_defaults { type: 'BuildTimeoutWrapper',
+                                               timeoutMinutes: 60,
+                                               strategy: 'AbsoluteTimeOutStrategy',
+                                               failBuild: true,
+                                               writingDescription: false }
+
+              - &TimeStamper_defaults { type: 'Timestamper',
+                                       options: none }
+
+              - &AnsiColor_defaults { type: 'AnsiColor',
+                                     colorMapName: xterm }
 
           jinja2_deploy_template:
             options: &deploy_template_options { disabled: false,
@@ -405,7 +447,7 @@ env:
 
     # zabbix settings
     zabbix:
-      server:
+      server: &zabbix_server_options
         #client_port : "10050"
         #nodeid : 99
         #server: zabbix
@@ -431,6 +473,11 @@ env:
 
 
       checks:
+        # this 'Azulinho.azulinho-zabbix-checks' role requires some settings
+        # from the zabbix/server block, such as zabbix_username/password
+        # to keep it DRY, we use yaml anchors to import those into the dict
+        <<: *zabbix_server_options
+
         # List of all the zabbix templates applied per hostgroup
         # zabbix hostgroups match the ansible group for the box
         # the host_group 'all_servers' contain a list of zabbix templates that is
@@ -618,7 +665,14 @@ env:
   qa: *env_defaults
   prd: *env_defaults
 
-# here we feed the roles
+# we now feed the Ansible roles which we bought at the galaxy supermarket.
+# Since each role uses its own set of variables, we make sure we set them using
+# the values we set in our own representation of our environment.
+#
+# 'deploy_env' will match what we have in our inventory file, so that we can
+# tackle different environments 'vagrant, dev, qa, prd' in a single
+# group_vars/all yaml dictionary.
+#
 #
 azulinho_jenkins_server: "{{ env[deploy_env]['jenkins'] }}"
 azulinho_jenkins_plugins: "{{ env[deploy_env]['jenkins'] }}"
