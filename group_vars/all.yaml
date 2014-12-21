@@ -484,7 +484,7 @@ env:
       # roles
       #
       server: &zabbix_server_options
-        nodeid: 999
+        nodeid: 1
         zabbix_username: admin
         zabbix_password: zabbix
         zabbix_host: localhost
