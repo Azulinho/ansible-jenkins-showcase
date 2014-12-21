@@ -469,8 +469,7 @@ env:
               startsWithParameters: true,
               buildViewTitle: 'Zabbix Deployment Pipeline' }
 
-
-
+      # pipeline_first_jobs will trigger the jenkins pipeline
       # here we set the first jobs in the pipeline,
       # this will be used by the kick-pipeline role
       #
@@ -479,18 +478,12 @@ env:
         - jinja2_deploy_zabbix
 
     # zabbix settings
-    zabbix:
+    zabbix: &zabbix
+      # server block, contains settings used by the
+      # Azulinho.azulinho-zabbix-server and Azulinho.azulinho-zabbix-agent
+      # roles
+      #
       server: &zabbix_server_options
-        #client_port : "10050"
-        #nodeid : 99
-        #server: zabbix
-        #server_port : "10051"
-
-        #username : admin
-        #password : password
-        #mysql_username: zabbix
-        #mysql_password: password
-
         nodeid: 999
         zabbix_username: admin
         zabbix_password: zabbix
@@ -501,29 +494,30 @@ env:
         mysql_start_pollers: 25
         mysql_start_trappers: 25
         server_port: 10051
+        client_port: 10050
         dbname: zabbix
         dbhost: localhost
 
-
-
-      checks:
+      checks: &zabbix_checks
         # this 'Azulinho.azulinho-zabbix-checks' role requires some settings
         # from the zabbix/server block, such as zabbix_username/password
         # to keep it DRY, we use yaml anchors to import those into the dict
         <<: *zabbix_server_options
 
-        # List of all the zabbix templates applied per hostgroup
+        # the 'host_groups' block will set the policy, of which zabbix
+        # templates are to be applied to each type of server.
+        #
         # zabbix hostgroups match the ansible group for the box
-        # the host_group 'all_servers' contain a list of zabbix templates that is
-        # common and applied to every box
         #
         # Apply *zabbix_host_groups_default to the environment, and then override
         # that environment with the list of services it requires
         # this allows zabbix to manage different templates in different environments
-        # so that apps that haven't been released yet to a particular env are not
-        # triggering alerts.
+        # so that apps that haven't been released yet to a particular
+        # environments won't be triggering alerts.
         #
         host_groups: &zabbix_host_groups_defaults
+          # the host_group 'all_servers' contain a list of zabbix templates that is
+          # common and applied to every box
           all_servers:
             templates: "OS_Linux,App_SSH_Service,App_Zabbix_Agent"
           zabbix_servers:
@@ -532,12 +526,10 @@ env:
             templates: "jenkins_service,HTTP"
 
 
-        # zabbix_xml_templates contains the zabbix definitions for templates, this
-        # block builds the templates using jinja2 templating, which will than be
-        # applied to a group of hosts based on the zabbix dictionary
-        #
-        #
-        #
+        # zabbix_xml_templates block contains the zabbix definitions for each
+        # template, this block builds the templates using jinja2 templating,
+        # which will then be imported into zabbix and applied to a group of
+        # hosts based on the zabbix host_groups dictionary above.
         #
         xml_templates: &zabbix_xml_templates_defaults
           OS_Linux:
@@ -656,7 +648,6 @@ env:
 
           Base: {}
 
-
           HTTP:
             applications: ['HTTP']
             zabbix_items:
@@ -687,18 +678,33 @@ env:
                   type: 0 }
 
 
-
-
-
+  # our test environment vagrant gets the values from the 'default' block
+  # and we then go about to override what we may need for our particular
+  # vagrant setup.
   vagrant:
+    # import the 'default'
     <<: *env_defaults
-    hosts:
-      - { hostname: 'jenkins', hostgroup: 'jenkins_servers', ip: '192.168.67.2' }
-      - { hostname: 'zabbix' , hostgroup: 'zabbix_servers', ip: '192.168.67.3' }
+    # we need to override some settings in the zabbix block, so lets import
+    # the zabbix block first
+    zabbix:
+      <<: *zabbix
+      # and then override the inner block that requires change
+      checks:
+        # we import the contents of zabbix checks
+        <<: *zabbix_checks
+        # and append a 'hosts' block to it
+        hosts:
+          - { hostname: 'jenkins', hostgroup: 'jenkins_servers', ip: '192.168.67.2' }
+          - { hostname: 'zabbix' , hostgroup: 'zabbix_servers', ip: '192.168.67.3' }
+
+  # our remaining environments (they don't actually exist) use the same
+  # settings as 'default'
+  #
   dev: *env_defaults
   qa: *env_defaults
   prd: *env_defaults
 
+#
 # we now feed the Ansible roles which we bought at the galaxy supermarket.
 # Since each role uses its own set of variables, we make sure we set them using
 # the values we set in our own representation of our environment.
