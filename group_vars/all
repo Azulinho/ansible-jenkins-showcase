@@ -171,7 +171,11 @@ env:
         #
         jinja2:
 
-
+          # jinja2_base_template is used to set common options that can be
+          # re-used by other jobs.
+          # lets use yaml aliases as much as possible here.
+          # and then consume those aliases in other job definitions.
+          #
           jinja2_base_template:
             options: &base_template_options { disabled: false,
                                               concurrentbuild: false }
@@ -189,6 +193,8 @@ env:
               - &AnsiColor_defaults { type: 'AnsiColor',
                                      colorMapName: xterm }
 
+          # jinja2_deploy_template is an example of how we could define
+          # a template for a generic deploy job
           jinja2_deploy_template:
             options: &deploy_template_options { disabled: false,
                                                 blocks: [ 'downstream',
@@ -198,9 +204,20 @@ env:
               - { type: 'shell',
                   command_lines: [
                     "#!/bin/bash",
-                    "echo $VAULT &gt; .vault",
-                    "ansible-playbook -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+                    "./deploy-my-app.sh" ]}
 
+          # jinja2_exmples1,2,3,4,5 show how to consume aliases from the
+          # template jobs, and override or extend additional properties in the
+          # job.
+          #
+          # these are shown in two different formats
+          # jobs 1,2 broken down which should fit into a 80 char wide window.
+          #
+          # and jobs 3,4,5 are configured into a single line each,
+          # which is meant to represent how very similar jobs
+          # could be grouped so it becames easier to make edits and
+          # check for differences in the yaml file.
+          #
           jinja2_example1:
             options: *deploy_template_options
             parameters:
@@ -215,7 +232,11 @@ env:
                     "echo deploy_job1" ]}
             buildWrappers: *base_template_wrappers
             publishers:
-              - { type: 'parametrizedTrigger', projects: ['deploy_job2'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+              - { type: 'parametrizedTrigger',
+                  projects: ['deploy_job2'],
+                  condition: 'success',
+                  parameters: ['VAR1=var1', 'VAR2=var2'],
+                  triggerWithNoParameters: false }
 
           jinja2_example2:
             options: *deploy_template_options
@@ -224,10 +245,20 @@ env:
                   command_lines: [
                     "#!/bin/bash",
                     "echo deploy_job2" ]}
-            buildWrappers: [ *BuildTimeOutWrapper_defaults, *TimeStamper_defaults, *AnsiColor_defaults ]
+            buildWrappers: [ *BuildTimeOutWrapper_defaults,
+                             *TimeStamper_defaults,
+                             *AnsiColor_defaults ]
             publishers:
-              - { type: 'parametrizedTrigger', projects: ['deploy_job3'], condition: 'success', parameters: ['VAR1=var1', 'VAR2=var2'], triggerWithNoParameters: false }
+              - { type: 'parametrizedTrigger',
+                  projects: ['deploy_job3'],
+                  condition: 'success',
+                  parameters: ['VAR1=var1', 'VAR2=var2'],
+                  triggerWithNoParameters: false }
 
+          # by setting similar job definitions in a horizontal layout, we can
+          # quickly look for differences in what could be similar jobs with
+          # minor differences between them.
+          #
           jinja2_example3: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job3" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job4']} ] }
           jinja2_example4: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job4" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job5']} ]}
           jinja2_example5: { options: *deploy_template_options, builders: [ { type: 'shell', command_lines: [ "#!/bin/bash", "echo deploy_job5" ]} ], buildWrappers: *base_template_wrappers , publishers: [ {type: 'parametrizedTrigger', projects: ['deploy_job6']} ]}
@@ -238,8 +269,8 @@ env:
           # it can be executed directly from the jenkins interface, by selecting
           # the playbook to execute, and the rest of options to give to ansible.
           #
-          # in this setup, this base template will also be used to generate a
-          # list of other jobs from that common base of parameters.
+          # the options and blocks in this job, will also be re-used in other
+          # jobs definitions as a common starting point.
           #
           jinja2_run_ansible: &jinja2_run_ansible
             description: "Executes Ansible"
@@ -461,6 +492,7 @@ env:
         #mysql_password: password
 
         nodeid: 999
+        zabbix_username: admin
         zabbix_password: zabbix
         zabbix_host: localhost
         mysql_username: zabbix
