@@ -1,3 +1,11 @@
+This is an example of how Ansible can be used in an *infrastructure as code environment*,
+where all your deployment and configuration data resides in one of more GIT repositories, and the whole environment could be rebuilt from scratch at any time.
+
+The configuration for the different jenkins jobs, pipelines, views,
+as well as the complete zabbix setup (including the monitored items) are all set in [group_vars/all.yaml](https://github.com/Azulinho/ansible-jenkins-showcase/group_vars/all.yaml) at the root of this repository:
+
+![configuration](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part0.gif)
+
 This repo contains a demo of how ansible can be used to deploy and configure Continous Delivery pipelines using
 a jenkins box.
 
@@ -55,11 +63,3 @@ Upon completion the Zabbix server will be configured to monitor itself as well a
 
 ![boxes_up](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part2.gif)
 
-
-This is an example of how Ansible can be used in an *infrastructure as code environment*,
-where all your deployment and configuration data resides in one of more GIT repositories, and the whole environment could be rebuilt from scratch at any time.
-
-The configuration for the different jenkins jobs, pipelines, views,
-as well as the complete zabbix setup (including the monitored items) are all set in [group_vars/all.yaml](https://github.com/Azulinho/ansible-jenkins-showcase/group_vars/all.yaml) at the root of this repository:
-
-![configuration](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part0.gif)
