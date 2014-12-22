@@ -11,9 +11,9 @@ a jenkins box.
 
 It shows how different libraries can be used with ansible to deploy and update plugins, jobs, view, pipelines:
 
-* python jenkins-job-builder
-* groovy jenkins job DSL
-* jinja2 XML templating
+* [python jenkins-job-builder](https://wiki.jenkins-ci.org/display/JENKINS/Job+DSL+Plugin)
+* [groovy jenkins job DSL](https://github.com/jenkinsci/job-dsl-plugin/wiki)
+* [jinja2 XML templating](http://jinja.pocoo.org/)
 
 
 The following roles are used in this demo,
@@ -55,7 +55,7 @@ and then connect to [http://jenkins:8080](http://jenkins:8080)
 
 you should see a fully deployed, configured jenkins with two pipelines and a series of jobs.
 
-The second pipeline [PIPELINE2](http://jenkins:8080/view/PIPELINE2) should be automatically initiated by an Ansible task,
+The second pipeline [PIPELINE2](http://jenkins:8080/view/PIPELINE2/) should be automatically initiated by an Ansible task,
 this pipeline executes a job [jinja2_deploy_zabbix](http://jenkins:8080/job/jinja2_deploy_zabbix/) with provisions and configures a zabbix server using an Ansible playbook.
 
 
