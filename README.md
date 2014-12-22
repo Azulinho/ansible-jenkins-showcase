@@ -55,9 +55,11 @@ and then connect to [http://jenkins:8080](http://jenkins:8080)
 
 you should see a fully deployed, configured jenkins with two pipelines and a series of jobs.
 
-The second pipeline PIPELINE2 should be automatically initiated by an Ansible task,
-this pipeline executes a job *jinja2_deploy_zabbix* with provisions and configures a zabbix server using an Ansible playbook.
-Then another job *jinja2_zabbix_checks* will populate the zabbix server with templates, hosts, and items.
+The second pipeline [PIPELINE2](http://jenkins:8080/view/PIPELINE2) should be automatically initiated by an Ansible task,
+this pipeline executes a job [jinja2_deploy_zabbix](http://jenkins:8080/job/jinja2_deploy_zabbix/) with provisions and configures a zabbix server using an Ansible playbook.
+
+
+Then another job [jinja2_zabbix_checks](http://jenkins:8080/job/jinja2_zabbix_checks) will populate the zabbix server with templates, hosts, and items.
 Upon completion the Zabbix server will be configured to monitor itself as well as the Jenkins box which provisioned the Zabbix Server.
 
 Access to the zabbix box on [http://zabbix/zabbix/](http://zabbix/zabbix/) using username:admin password:zabbix
