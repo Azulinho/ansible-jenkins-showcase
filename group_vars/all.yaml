@@ -498,6 +498,11 @@ env:
         dbname: zabbix
         dbhost: localhost
 
+      agent: &zabbix_agent_options
+        zabbix_host: zabbix
+        server_port: 10051
+        client_port: 10050
+
       checks: &zabbix_checks
         # this 'Azulinho.azulinho-zabbix-checks' role requires some settings
         # from the zabbix/server block, such as zabbix_username/password
@@ -714,13 +719,13 @@ env:
 # group_vars/all yaml dictionary.
 #
 #
-azulinho_jenkins_server: "{{ env[deploy_env]['jenkins'] }}"
+azulinho_jenkins_kick_pipeline: "{{ env[deploy_env]['jenkins'] }}"
 azulinho_jenkins_plugins: "{{ env[deploy_env]['jenkins'] }}"
+azulinho_jenkins_reconfigure_jobs_using_job_builder: "{{ env[deploy_env]['jenkins']['jobs']['job_builder'] }}"
 azulinho_jenkins_reconfigure_jobs_using_jinja2:
   jobs: "{{ env[deploy_env]['jenkins']['jobs']['jinja2'] }}"
-azulinho_jenkins_reconfigure_jobs_using_job_builder: "{{ env[deploy_env]['jenkins']['jobs']['job_builder'] }}"
-azulinho_jenkins_kick_pipeline: "{{ env[deploy_env]['jenkins'] }}"
-azulinho_zabbix_server: "{{ env[deploy_env]['zabbix']['server'] }}"
-azulinho_zabbix_agent: "{{ env[deploy_env]['zabbix']['server'] }}"
-azulinho_zabbix_checks: "{{ env[deploy_env]['zabbix']['checks'] }}"
+azulinho_jenkins_server: "{{ env[deploy_env]['jenkins'] }}"
 azulinho_ssh_keys: "{{ env[deploy_env]['ssh']['ssh_keys'] }}"
+azulinho_zabbix_agent: "{{ env[deploy_env]['zabbix']['agent'] }}"
+azulinho_zabbix_checks: "{{ env[deploy_env]['zabbix']['checks'] }}"
+azulinho_zabbix_server: "{{ env[deploy_env]['zabbix']['server'] }}"
