@@ -18,31 +18,31 @@ It shows how different libraries can be used with ansible to deploy and update p
 
 The following roles are used in this demo,
 
-* Azulinho.azulinho-ansible
-* Azulinho.azulinho-apache
-* Azulinho.azulinho-devel-packages
-* Azulinho.azulinho-git
-* Azulinho.azulinho-google-dns
-* Azulinho.azulinho-java-openjdk-jdk
-* Azulinho.azulinho-jenkins-job-builder
-* Azulinho.azulinho-jenkins-kick-pipelines
-* Azulinho.azulinho-jenkins-plugins
-* Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2
-* Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-builder
-* Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-dsl
-* Azulinho.azulinho-jenkins-server
-* Azulinho.azulinho-mysql-server
-* Azulinho.azulinho-python27
-* Azulinho.azulinho-ssh-keys
-* Azulinho.azulinho-yum-plugin-versionlock
-* Azulinho.azulinho-yum-repo-epel
-* Azulinho.azulinho-yum-repo-jenkins
-* Azulinho.azulinho-yum-repo-rpmforge
-* Azulinho.azulinho-zabbix-agent
-* Azulinho.azulinho-zabbix-checks
-* Azulinho.azulinho-zabbix-server
-* joshualund.ruby-2_1
-* joshualund.ruby-common
+* [Azulinho.azulinho-ansible](https://github.com/Azulinho/azulinho-ansible)
+* [Azulinho.azulinho-apache](https://github.com/Azulinho/azulinho-apache)
+* [Azulinho.azulinho-devel-packages](https://github.com/Azulinho/azulinho-devel-packages)
+* [Azulinho.azulinho-git](https://github.com/Azulinho/azulinho-git)
+* [Azulinho.azulinho-google-dns](https://github.com/Azulinho/azulinho-google-dns)
+* [Azulinho.azulinho-java-openjdk-jdk](https://github.com/Azulinho/azulinho-java-openjdk-jdk)
+* [Azulinho.azulinho-jenkins-job-builder](https://github.com/Azulinho/azulinho-jenkins-job-builder)
+* [Azulinho.azulinho-jenkins-kick-pipelines](https://github.com/Azulinho/azulinho-jenkins-kick-pipelines)
+* [Azulinho.azulinho-jenkins-plugins](https://github.com/Azulinho/azulinho-jenkins-plugins)
+* [Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2](https://github.com/Azulinho/azulinho-jenkins-reconfigure-jobs-using-jinja2)
+* [Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-builder](https://github.com/Azulinho/azulinho-jenkins-reconfigure-jobs-using-job-builder)
+* [Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-dsl](https://github.com/Azulinho/azulinho-jenkins-reconfigure-jobs-using-job-dsl)
+* [Azulinho.azulinho-jenkins-server](https://github.com/Azulinho/azulinho-jenkins-server)
+* [Azulinho.azulinho-mysql-server](https://github.com/Azulinho/azulinho-mysql-server)
+* [Azulinho.azulinho-python27](https://github.com/Azulinho/azulinho-python27)
+* [Azulinho.azulinho-ssh-keys](https://github.com/Azulinho/azulinho-ssh-keys)
+* [Azulinho.azulinho-yum-plugin-versionlock](https://github.com/Azulinho/azulinho-yum-plugin-versionlock)
+* [Azulinho.azulinho-yum-repo-epel](https://github.com/Azulinho/azulinho-yum-repo-epel)
+* [Azulinho.azulinho-yum-repo-jenkins](https://github.com/Azulinho/azulinho-yum-repo-jenkins)
+* [Azulinho.azulinho-yum-repo-rpmforge](https://github.com/Azulinho/azulinho-yum-repo-rpmforge)
+* [Azulinho.azulinho-zabbix-agent](https://github.com/Azulinho/azulinho-zabbix-agent)
+* [Azulinho.azulinho-zabbix-checks](https://github.com/Azulinho/azulinho-zabbix-checks)
+* [Azulinho.azulinho-zabbix-server](https://github.com/Azulinho/azulinho-zabbix-server)
+* [joshualund.ruby-2_1](https://github.com/jlund/ansible-ruby-2.1)
+* [joshualund.ruby-common](https://github.com/jlund/ansible-ruby-common)
 
 
 Simply run:
