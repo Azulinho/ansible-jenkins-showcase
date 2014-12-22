@@ -2,7 +2,6 @@
 - hosts: jenkins_servers
   max_fail_percentage: 1
   serial: 1
-  accelerate: false
   sudo: true
 
 
@@ -21,9 +20,6 @@
 
       # jenkins-plugins role installs the jenkins-plugins
     - Azulinho.azulinho-jenkins-plugins
-
-    # zabbix-agent install the zabbix-agent
-    - Azulinho.azulinho-zabbix-agent
 
     # deploy SSH keys
     - Azulinho.azulinho-ssh-keys
