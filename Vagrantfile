@@ -3,7 +3,7 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-box = 'CENTOS_6.5'
+box = 'centos6.5_fat'
 box_url = 'https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box'
 
 boxes = [
@@ -69,6 +69,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible.inventory_path= 'vagrant'
         ansible.vault_password_file = 'vagrant-vault'
         ansible.limit = opts[:name].to_s
+        ansible.raw_ssh_args = ['-o ControlMaster=auto', '-o ControlPersist=30m']
 
         ansible.extra_vars = {
           'deploy_environment'    => 'vagrant',
