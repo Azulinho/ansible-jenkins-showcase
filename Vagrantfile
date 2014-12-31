@@ -3,57 +3,60 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-box = 'CENTOS_6.5'
-box_url = 'https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box'
-
 boxes = [
   {
     :name => :jenkins,
-    :ram => 1512,
     :book => 'jenkins',
-    :ip => "2"
   },
   {
     :name => :zabbix,
-    :ram => 512,
     :book => 'zabbix',
-    :ip => "3"
   },
 
 
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-
   config.hostmanager.enabled      = true
   config.hostmanager.include_offline  = true
   config.hostmanager.manage_host   = true
+  config.hostmanager.ignore_private_ip = false
   config.vm.provision :hostmanager
   config.ssh.insert_key = false
-  config.ssh.private_key_path = "#{ENV['HOME']}/.vagrant.d/insecure_private_key"
 
-  if Vagrant.has_plugin?("vagrant-cachier")
-      # Configure cached packages to be shared between instances of the same base box.
-      # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
-      config.cache.scope = :box
-  end
-
+  #config.ssh.insert_key = false
+  #
   boxes.each do |opts|
     config.vm.define opts[:name] do |machine|
-      machine.vm.box = box
-      machine.vm.box_url = box_url
-      machine.vm.hostname = opts[:name]
-      machine.vm.network :private_network, ip: "192.168.67.#{opts[:ip]}"
 
+      machine.vm.provider :linode do |provider, override|
+        override.ssh.private_key_path = "vagrant-keys/vagrant"
+        override.vm.box = opts[:name].to_s
+        override.vm.box_url = "https://github.com/displague/vagrant-linode/raw/master/box/linode.box"
 
-      machine.vm.provider :virtualbox do |virtual|
-        virtual.customize ['modifyvm', :id, '--cpus', "2"  ]
-        virtual.customize ['modifyvm', :id, '--memory', opts[:ram] ]
-        virtual.customize ['modifyvm', :id, '--name', opts[:name].to_s ]
-        virtual.customize ['modifyvm', :id, '--natdnsproxy1', "off"]
-        virtual.customize ['modifyvm', :id, '--natdnshostresolver1', "off"]
-        virtual.customize ['modifyvm', :id, '--usbehci', "off"]
+        provider.token = ENV['linode_key']
+        provider.distribution = 'CentOS 6'
+        provider.datacenter = 'london'
+        provider.plan = 'Linode 1024'
+        # provider.planid = <int>
+        # provider.paymentterm = <*1*,12,24>
+        provider.datacenterid = 7
+        #provider.image = "CentOS 7"
+        # provider.imageid = <int>
+        provider.private_networking = true
+        # provider.stackscript = <string>
+        # provider.stackscriptid = <int>
+        # provider.distributionid = <int>
       end
+
+      config.vm.synced_folder ".", "/vagrant", type: "rsync",
+        rsync__exclude: [".git",
+                        "vendor",
+                        "videos",
+                        "vagrant-keys",
+                        "roles",
+                        "library",
+                        "group_vars"]
 
       config.vm.provision :ansible do |ansible|
         if defined? ENV['TAGS']
