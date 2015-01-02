@@ -49,14 +49,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # provider.distributionid = <int>
       end
 
-      config.vm.synced_folder ".", "/vagrant", type: "rsync",
-        rsync__exclude: [".git",
-                        "vendor",
-                        "videos",
-                        "vagrant-keys",
-                        "roles",
-                        "library",
-                        "group_vars"]
+      config.vm.synced_folder ".", "/vagrant", disabled: true
 
       config.vm.provision :ansible do |ansible|
         if defined? ENV['TAGS']
