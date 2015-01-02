@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         provider.datacenterid = 7
         #provider.image = "CentOS 7"
         # provider.imageid = <int>
-        provider.private_networking = true
+        #provider.private_networking = true
         # provider.stackscript = <string>
         # provider.stackscriptid = <int>
         # provider.distributionid = <int>
