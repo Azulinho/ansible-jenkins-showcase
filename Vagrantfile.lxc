@@ -42,11 +42,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       machine.vm.box_url = box_url
       machine.vm.hostname = opts[:name]
 
-
       machine.vm.provider :lxc do |virtual|
         virtual.customize 'cgroup.memory.limit_in_bytes', opts[:ram]
         virtual.container_name = opts[:name]
       end
+
+      config.vm.synced_folder ".", "/vagrant", disabled: true
 
       config.vm.provision :ansible do |ansible|
         if defined? ENV['TAGS']
