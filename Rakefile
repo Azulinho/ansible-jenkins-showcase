@@ -62,7 +62,7 @@ end
 desc "power up the vagrant boxes"
 task :vagrant_up do
   ['zabbix', 'jenkins'].each do |box|
-    system("vagrant up #{ box } --provider=lxc --no-provision")
+    system("vagrant up #{ box } --no-provision")
   end
   system("vagrant provision jenkins")
 end
