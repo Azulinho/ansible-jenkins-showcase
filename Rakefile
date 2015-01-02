@@ -1,6 +1,5 @@
 
 vagrant_plugins = { 'ansible' => '0.2.0' ,
-                    'vagrant-cachier' => '1.1.0',
                     'vagrant-hostmanager' => '1.5.0',
                     'vagrant-triggers' => '0.4.3',
                     'vagrant-lxc' => '1.0.1',
@@ -13,6 +12,10 @@ ansible_roles = [
   'Azulinho.azulinho-git',
   'Azulinho.azulinho-jenkins-kick-pipelines',
   'Azulinho.azulinho-jenkins-plugins',
+  'Azulinho.azulinho-yum-repo-epel',
+  'Azulinho.azulinho-java-openjdk-jdk',
+  'Azulinho.azulinho-yum-repo-jenkins',
+  'Azulinho.azulinho-yum-plugin-versionlock',
   'Azulinho.azulinho-jenkins-reconfigure-jobs-using-jinja2',
   'Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-builder',
   'Azulinho.azulinho-jenkins-reconfigure-jobs-using-job-dsl',
