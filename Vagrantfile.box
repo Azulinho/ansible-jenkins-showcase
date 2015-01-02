@@ -29,6 +29,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.include_offline  = true
   config.hostmanager.manager_host   = true
   config.vm.provision :hostmanager
+  config.ssh.private_key_path = "vagrant-keys/vagrant"
+  config.ssh.insert_key = false
 
   if Vagrant.has_plugin?("vagrant-cachier")
       # Configure cached packages to be shared between instances of the same base box.
