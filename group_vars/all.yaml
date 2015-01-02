@@ -316,7 +316,7 @@ env:
             scm:
               - { type: 'git',
                   url: 'https://github.com/Azulinho/ansible-jenkins-showcase.git',
-                  branches: ['*/master'] }
+                  branches: ['*/linode'] }
 
             builders:
               - { type: 'shell',
@@ -327,7 +327,7 @@ env:
                     "echo $VAULT &gt; .vault",
                     "bundle install",
                     "bundle exec rake galaxy_install",
-                    "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u vagrant -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
+                    "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -s -i $INVENTORY_FILE -l $LIMIT $PLAYBOOK --vault-password-file .vault" ]}
 
             buildWrappers: *base_template_wrappers
 
