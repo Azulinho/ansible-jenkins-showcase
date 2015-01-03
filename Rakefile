@@ -63,7 +63,26 @@ end
 desc "power up the vagrant boxes"
 task :vagrant_up do
   ['zabbix', 'jenkins'].each do |box|
-    system("vagrant up #{ box } --no-provision")
+    File.unlink("Vagrantfile")
+    if ARGV.empty?
+      File.symlink("Vagrantfile.vbox", "Vagrantfile")
+      system("vagrant up #{ box } --no-provision")
+    else
+      case ARGV[1]
+        when "vbox"
+          File.symlink("Vagrantfile.vbox", "Vagrantfile")
+          system("vagrant up #{ box } --no-provision")
+        when "lxc"
+          File.symlink("Vagrantfile.lxc", "Vagrantfile")
+          system("vagrant up #{ box } --provider=lxc --no-provision")
+        when "linode"
+          File.symlink("Vagrantfile.linode", "Vagrantfile")
+          system("vagrant up #{ box } --provider=linode --no-provision")
+        else
+          File.symlink("Vagrantfile.vbox", "Vagrantfile")
+          system("vagrant up #{ box } --no-provision")
+      end
+    end
   end
   system("vagrant provision jenkins")
 end
