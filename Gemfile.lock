@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print (1.6.1)
+    netrc (0.7.9)
+    rake (10.4.2)
+    rest_client (1.8.2)
+      netrc (~> 0.7.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  awesome_print
+  rake
+  rest_client
