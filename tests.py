@@ -6,7 +6,11 @@ import requests_mock
 class InventoryUnitTests(unittest.TestCase):
 
     def setUp(self):
-        self.inventory = Inventory()
+        with requests_mock.Mocker() as m:
+            m.register_uri('POST', 'https://api.terminal.com/v0.1/list_terminals', json={"terminals":[]})
+            os.environ['TERMINAL_API_TOKEN'] = 'XXXXXXXXXXXXXXXX'
+            os.environ['TERMINAL_ACCESS_TOKEN'] = 'XXXXXXXXXXXXX'
+            self.inventory = Inventory()
 
     def unset_environment_variable(self,var):
         if var in os.environ: os.environ.pop(var)

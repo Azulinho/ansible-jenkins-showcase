@@ -5,7 +5,7 @@ import os
 class Inventory:
 
     def __init__(self):
-        self.hosts = {}
+        self.hosts = self.gather_list_of_terminals()
         self.hostgroups = []
 
     def check_for_terminal_credentials(self):
