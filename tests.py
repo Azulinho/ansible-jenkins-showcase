@@ -49,6 +49,24 @@ class InventoryUnitTests(unittest.TestCase):
     #def test_build_inventory_response_returns_json(self):
         #self.assertEqual(True, False)
 
+    def test_build_inventory_list_response(self):
+        self.inventory.hosts = [{'name': 'host1', 'custom_data': 'hostgroup1'}]
+        #with requests_mock.Mocker() as m:
+            #m.register_uri('POST', 'https://api.terminal.com/v0.1/list_terminals', json={"terminals":[]})
+        expected_response = {
+                                "hostgroup1": {
+                                    "hosts": [
+                                        "host1"
+                                    ]
+                                },
+                                "local": [
+                                    "127.0.0.1"
+                                ],
+                            }
+        self.assertEqual(True, False)
+
+
+
 if __name__ == "__main__":
 
     unittest.main()

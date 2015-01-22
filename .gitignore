@@ -3,3 +3,5 @@
 roles/*
 vendor
 .bundle
+launch-terminals.log
+*.pyc
