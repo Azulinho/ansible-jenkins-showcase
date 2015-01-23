@@ -1,0 +1,74 @@
+# vi: set ft=ruby :
+#
+
+VAGRANTFILE_API_VERSION = '2'
+
+box = 'lxc-centos6.5-2013-12-02'
+box_url = ''
+
+boxes = [
+  {
+    :name => :jenkins,
+    :ram => '1512M',
+    :book => 'jenkins'
+  },
+  {
+    :name => :zabbix,
+    :ram => '512M',
+    :book => 'zabbix'
+  },
+
+
+]
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.hostmanager.enabled      = true
+  config.hostmanager.include_offline  = true
+  config.hostmanager.manage_host   = true
+  config.vm.provision :hostmanager
+  config.ssh.insert_key = false
+  config.ssh.private_key_path = "#{ENV['HOME']}/.vagrant.d/insecure_private_key"
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+      # Configure cached packages to be shared between instances of the same base box.
+      # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+      config.cache.scope = :box
+  end
+
+  boxes.each do |opts|
+    config.vm.define opts[:name] do |machine|
+      machine.vm.box = box
+      machine.vm.box_url = box_url
+      machine.vm.hostname = opts[:name]
+
+      machine.vm.provider :lxc do |virtual|
+        virtual.customize 'cgroup.memory.limit_in_bytes', opts[:ram]
+        virtual.container_name = opts[:name]
+      end
+
+      config.vm.synced_folder ".", "/vagrant", disabled: true
+
+      config.vm.provision :ansible do |ansible|
+        if defined? ENV['TAGS']
+          ansible.tags = ENV['TAGS']
+        end
+        if defined? ENV['START_AT_TASK']
+          ansible.start_at_task = ENV['START_AT_TASK']
+        end
+
+        #ansible.verbose = 'vvv'
+        ansible.sudo = true
+        ansible.playbook = "vagrant-#{opts[:book]}.yml"
+        ansible.inventory_path= 'vagrant'
+        ansible.vault_password_file = 'vagrant-vault'
+        ansible.limit = opts[:name].to_s
+
+        ansible.extra_vars = {
+          'deploy_environment'    => 'vagrant',
+        }
+      end
+    end
+  end
+end
+# -*- mode: ruby -*-

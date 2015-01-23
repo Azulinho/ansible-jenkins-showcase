@@ -67,3 +67,32 @@ Access to the zabbix box on [http://zabbix/zabbix/](http://zabbix/zabbix/) using
 
 ![boxes_up](https://github.com/Azulinho/ansible-jenkins-showcase/raw/master/videos/part2.gif)
 
+
+Some limited support available for linode and LXC, simply use:
+
+    rake default [linode|lxc]
+
+My lxc conf looks like:
+
+    \>cat /etc/lxc/default.conf
+    lxc.network.type = veth
+    lxc.network.link = lxcbr0
+    lxc.network.flags = up
+    lxc.network.hwaddr = 00:16:3e:xx:xx:xx
+    lxc.autodev = true
+
+and my dnsmasq file:
+    \>cat /etc/dnsmasq-lxcbr0.conf
+    interface=lxcbr0
+    except-interface=lo
+    bind-interfaces
+
+    domain=lxc
+    dhcp-range=10.0.3.2,10.0.3.100,12h
+
+    host-record=lxchost.lxc,10.0.3.1
+    local=/lxc/
+
+for linode, you need to export your linode key:
+
+    export linode_key="XXXXXXXX"
