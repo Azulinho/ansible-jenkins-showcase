@@ -1,3 +1,4 @@
+require 'fileutils'
 
 vagrant_plugins = { 'ansible' => '0.2.0' ,
                     'vagrant-hostmanager' => '1.5.0',
@@ -29,6 +30,7 @@ ansible_roles = [
   'Azulinho.azulinho-zabbix-agent',
   'Azulinho.azulinho-zabbix-checks',
   'Azulinho.azulinho-zabbix-server',
+  'lborguetti.system-update'
 ]
 
 task :default => ['setup', 'vagrant_up'] do
@@ -58,6 +60,18 @@ task :galaxy_install do
     end
   end
 end
+
+
+desc "Clean all the roles and VMs"
+task :clean do
+  if Dir.exists?("roles/")
+    FileUtils.rm_rf("roles")
+  end
+  ['zabbix', 'jenkins'].each do |box|
+    system("vagrant destroy #{ box } -f")
+  end
+end
+
 
 
 desc "power up the vagrant boxes"
