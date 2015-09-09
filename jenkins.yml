@@ -6,6 +6,9 @@
 
 
   roles:
+    # disable selinux
+    - flmmartins.disable-selinux
+
     # configure /etc/resolv.conf
     - Azulinho.azulinho-google-dns
 

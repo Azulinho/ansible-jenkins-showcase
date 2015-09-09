@@ -5,6 +5,7 @@
   sudo: true
 
   roles:
+    - flmmartins.disable-selinux
     - Azulinho.azulinho-google-dns
     - lborguetti.system-update
     - Azulinho.azulinho-apache
