@@ -3,8 +3,7 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-box = 'centos6.5_fat'
-box_url = 'https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box'
+box = 'box-cutter/centos67'
 
 boxes = [
   {
@@ -37,11 +36,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
       config.cache.scope = :box
   end
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+      config.proxy.no_proxy = "localhost,127.0.0.1"
+  end
 
   boxes.each do |opts|
     config.vm.define opts[:name] do |machine|
       machine.vm.box = box
-      machine.vm.box_url = box_url
       machine.vm.hostname = opts[:name]
       machine.vm.network :private_network, ip: "192.168.67.#{opts[:ip]}"
 
@@ -54,6 +55,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         virtual.customize ['modifyvm', :id, '--natdnshostresolver1', "off"]
         virtual.customize ['modifyvm', :id, '--usbehci', "off"]
       end
+
+      config.vm.provision "shell",
+        inline: "sudo yum install -y libselinux-python"
+      config.vm.provision "shell",
+        inline: "sudo setenforce 0"
 
       config.vm.provision :ansible do |ansible|
         if defined? ENV['TAGS']
