@@ -9,6 +9,9 @@
     # configure /etc/resolv.conf
     - Azulinho.azulinho-google-dns
 
+    # install updates
+    - lborguetti.system-update
+
     # get the latest git, the version from RH is pretty rubbish
     - Azulinho.azulinho-git
 

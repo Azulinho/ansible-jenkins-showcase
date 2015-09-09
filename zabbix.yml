@@ -6,6 +6,7 @@
 
   roles:
     - Azulinho.azulinho-google-dns
+    - lborguetti.system-update
     - Azulinho.azulinho-apache
     - Azulinho.azulinho-mysql-server
     - Azulinho.azulinho-zabbix-server
