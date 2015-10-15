@@ -59,7 +59,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.provision "shell",
         inline: "sudo yum install -y libselinux-python"
       config.vm.provision "shell",
-        inline: "sudo setenforce 0"
+        inline: "sudo setenforce 0 | echo"
 
       config.vm.provision :ansible do |ansible|
         if defined? ENV['TAGS']
